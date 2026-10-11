@@ -38,6 +38,8 @@ The first mod in this repo came from a real problem. A Windows installer opened 
 ## The mods
 
 ### Off-Screen Window Rescue
+Off-Screen Window Rescue is a Windhawk mod for Windows 11 that moves windows back onto your screen when they open outside the visible area.
+
 Problem: some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. The window is running, but you can't see it or grab it.
 
 What it does: when a normal window first appears, the mod checks how much of it is visible. If less than the limit you set is on screen, it moves the window back into the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
@@ -49,6 +51,8 @@ Settings:
 Limits: it skips File Explorer and core system processes (csrss.exe, dwm.exe, winlogon.exe, LogonUI.exe, fontdrvhost.exe, sihost.exe, ShellHost.exe). You can add more `@exclude` lines in the source tab for any program you want to skip.
 
 ### Same-App Window Cycler
+Same-App Window Cycler is a Windhawk mod that adds an Alt+` shortcut to Windows 11 for switching between windows of the same app.
+
 Problem: Alt+Tab shows every window from every app. If you have six browser windows and a code editor, getting to the right browser window takes several presses.
 
 What it does: press Alt+` to move between the windows of the app you're using, like Cmd+` on a Mac.
@@ -59,6 +63,8 @@ Settings:
 - `currentDesktopOnly` (default on): only windows on the current virtual desktop.
 
 ### Focus Follows Mouse
+Focus Follows Mouse is a Windhawk mod that gives keyboard focus to the window under your pointer on Windows 11, with no click.
+
 Problem: on Windows, the window under your pointer doesn't get keyboard focus until you click it. Many Linux desktops don't work that way.
 
 What it does: focuses the window under the mouse after a short delay. By default it doesn't raise the window, so a window you're reading stays on top while you type in the one underneath.
@@ -69,6 +75,8 @@ Settings:
 - `raiseWindow` (default off): also bring the window to the front.
 
 ### Title Bar Scroll Roll-Up
+Title Bar Scroll Roll-Up is a Windhawk mod that folds a Windows 11 window up to its title bar when you scroll the mouse wheel on it.
+
 Problem: you want a window out of the way for a moment, but not minimized and not closed.
 
 What it does: scroll the mouse wheel on a title bar and the window rolls up to its title bar. Scroll the other way and it comes back. The frame outline stays and the content is hidden.
@@ -79,6 +87,8 @@ Settings:
 - `modifier` (default none): require Ctrl, Shift, or Alt while you scroll.
 
 ### Window Rules
+Window Rules is a Windhawk mod that sets position, size, monitor, always-on-top, and opacity for specific apps when their windows open.
+
 Problem: some apps open in a different place and size every time, and Windows has no built-in way to pin them. KDE has had per-app window rules for a long time.
 
 What it does: you write a rule for an app and the mod applies it when that app's window opens. A rule can set position, size, monitor, maximize, always-on-top, and opacity.
@@ -96,6 +106,8 @@ Other settings: `enabled` and `logRules`, both on by default.
 Limits: it skips File Explorer and the same core system processes as the rescue mod.
 
 ### Clipboard Hang Watchdog
+Clipboard Hang Watchdog is a Windhawk mod that finds which program is blocking the Windows 11 clipboard and writes it to a log.
+
 Problem: copy and paste stop working, sometimes for many seconds, and Windows doesn't tell you which program is responsible.
 
 What it does: a background thread checks the clipboard every 500 ms. If a program holds the clipboard open longer than your threshold, or the clipboard owner stops responding, the mod writes the program name and process ID to a log. In `endHolder` mode it can also end that program once the hold passes the kill limit.
