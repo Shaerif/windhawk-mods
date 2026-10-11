@@ -9,6 +9,24 @@ Custom [Windhawk](https://windhawk.net) mods for Windows 11.
 - `mods/titlebar-scroll-rollup.wh.cpp`: scroll on a title bar to roll the window up to its title bar and back.
 - `mods/window-rules.wh.cpp`: per-app position, size, monitor, always-on-top and opacity rules, like KDE window rules.
 
+## Screenshots
+The windows below are plain test windows on a blank backdrop.
+
+Title bar roll-up. Scroll up on the title bar to roll the window up. The frame outline stays, and the content area is hidden. Scroll down to bring it back.
+
+![A window before roll-up](images/rollup-before.png)
+![The same window after rolling up](images/rollup-after.png)
+
+Off-screen rescue. A test window was opened at x = -3000. The mod moved it to x = 1000, y = 630 on a 2560 by 1600 screen.
+
+![A window rescued after opening off screen](images/rescue-after.png)
+
+Window rules. One rule matches a test window by app and title. It opened at 60, 60 with size 380 by 220. The rule moved it to 500, 300, resized it to 560 by 340 and set opacity to 80.
+
+![A window placed and made translucent by a rule](images/rules-after.png)
+
+The window cycler and focus follows mouse don't have screenshots. A still image can't show them.
+
 ## Install
 1. Open Windhawk and create a new mod.
 2. Paste the file contents and compile.
