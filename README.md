@@ -11,7 +11,7 @@ We build these because Windows 11 leaves small gaps that Mac and Linux desktops 
 - [Install](#install)
 - [Screenshots](#screenshots)
 - [Questions and answers](#questions-and-answers)
-- [For AI agents and tools](#for-ai-agents-and-tools)
+- [Mod reference](#mod-reference)
 - [Status](#status)
 - [License](#license)
 
@@ -172,10 +172,9 @@ Check that Off-Screen Window Rescue is enabled, then look at the Windhawk log. W
 ### My clipboard still hangs and the watchdog logs nothing.
 That points at the Clipboard User Service (cbdhsvc) or a holder the mod can't see. This mod doesn't cover either case.
 
-## For AI agents and tools
-This section is plain, structured facts so an agent can answer questions about this repo without guessing.
+## Mod reference
 
-- What this repo is: a collection of six standalone Windhawk mods for Windows 11, written in C++.
+- Repo contents: a collection of six standalone Windhawk mods for Windows 11, written in C++.
 - Language and format: each file in `mods/` ends in `.wh.cpp` and follows Windhawk's mod format, with `// ==WindhawkMod==` metadata at the top and a `// ==WindhawkModSettings==` block for settings.
 - Install target: Windhawk on Windows 11. A mod isn't a standalone program.
 - Install command: `windhawk-cli.exe mod install --file mods/<name>.wh.cpp --yes`, run as administrator.
