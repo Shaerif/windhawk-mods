@@ -163,6 +163,24 @@ The window cycler, focus follows mouse, and clipboard watchdog have no screensho
 
 ## Questions and answers
 
+### How do I fix a window that opened off screen in Windows 11?
+Install Off-Screen Window Rescue in Windhawk. When a window first opens with less than 50 percent of it visible, the mod moves it back into the work area. You can change that limit with the `minVisiblePercent` setting. The mod checks each window once, when it appears.
+
+### How do I switch between windows of the same app in Windows 11?
+Install Same-App Window Cycler and press Alt+` (the key above Tab on a US keyboard). It cycles through the windows of the app you're using, and it includes minimized windows by default. It works like Cmd+` on a Mac.
+
+### How do I get focus follows mouse in Windows 11?
+Install Focus Follows Mouse. After the pointer rests on a window for 300 ms, that window gets keyboard focus. The mod doesn't bring the window to the front unless you turn on `raiseWindow`.
+
+### How do I find which program is blocking the clipboard?
+Install Clipboard Hang Watchdog. It checks the clipboard every 500 ms, and when a program holds it open longer than 5 seconds, the mod logs that program to `%LOCALAPPDATA%\clipboard-hang-watchdog.log`. It starts in log-only mode, so it doesn't end anything until you ask it to.
+
+### How do I set a fixed size and position for an app in Windows 11?
+Install Window Rules and add a rule with the program file name, for example `notepad.exe`. Then set `x`, `y`, `width`, and `height`. The rule applies each time that app opens a window.
+
+### How do I roll a window up to its title bar in Windows 11?
+Install Title Bar Scroll Roll-Up and scroll the mouse wheel on a window's title bar. The window rolls up to its title bar. Scroll the other way and it comes back.
+
 ### Is it safe to run these mods?
 Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
 
