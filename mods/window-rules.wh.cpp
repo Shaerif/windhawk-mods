@@ -19,7 +19,7 @@
 // ==WindhawkModReadme==
 /*
 # Window Rules
-KDE lets you say "this app always opens here, at this size". Windows does not.
+KDE lets you say "this app always opens here, at this size". Windows doesn't.
 This mod adds that. You write a rule for a program. When one of its windows first
 opens, the mod applies the rule.
 
@@ -53,7 +53,7 @@ place a window off screen.
   where you put it.
 - Windows that set their own transparency keep it. The opacity field skips them.
 - File Explorer and core system processes are excluded for stability.
-- Windows that run as administrator cannot be changed by a normal process.
+- Windows that run as administrator can't be changed by a normal process.
 */
 // ==/WindhawkModReadme==
 

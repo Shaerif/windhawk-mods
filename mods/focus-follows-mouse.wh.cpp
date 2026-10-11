@@ -21,13 +21,13 @@ This mod turns on the built-in Windows hover focus and gives you control over it
 - Turns on "activate a window by hovering over it".
 - Lets you pick the hover delay.
 - Lets you keep the hovered window where it is in the stack. It gets keyboard
-  focus but does not cover the windows around it. This is the main reason to use
+  focus but doesn't cover the windows around it. This is the main reason to use
   the mod.
 
 ## How it works
 The mod uses three Windows system settings: active window tracking, the
 tracking delay, and the raise-on-hover flag. It saves your current values when it
-loads and puts them back when it unloads. It does not write to the registry.
+loads and puts them back when it unloads. It doesn't write to the registry.
 Windows resets these values at the next sign in, and the mod sets them again each
 time Explorer starts.
 

@@ -17,15 +17,15 @@ rolls back down. This mod adds that to Windows.
 
 ## How it works
 Scroll up on a title bar to roll the window up. Scroll down to unroll it.
-The mod does not resize the window. It clips the window so only the title bar
-shows. The app does not notice, so apps with a minimum size still work.
+The mod doesn't resize the window. It clips the window so only the title bar
+shows. The app doesn't notice, so apps with a minimum size still work.
 
 ## Notes
 - The taskbar still lists a rolled-up window and its thumbnail shows the full
   window.
 - The mod only acts on the title bar. Scrolling in the window body works as usual.
 - Maximized, minimized and full screen windows are skipped.
-- Windows that run as administrator cannot be changed from Explorer. They are
+- Windows that run as administrator can't be changed from Explorer. They are
   skipped.
 - All rolled-up windows come back when you unload the mod.
 */

@@ -1,7 +1,7 @@
 // ==WindhawkMod==
 // @id              same-app-window-cycler
 // @name            Same-App Window Cycler
-// @description     Press Alt+` to cycle between the windows of the app you are using, like Cmd+` on a Mac
+// @description     Press Alt+` to cycle between the windows of the app you're using, like Cmd+` on a Mac
 // @version         0.1.0
 // @author          Shaerif
 // @include         explorer.exe
@@ -23,7 +23,7 @@ You can change the modifier in the settings.
 
 ## Rules
 - Only windows of the same program file count. Two Notepad windows cycle. Notepad
-  and Word do not.
+  and Word don't.
 - Hidden, tool and cloaked windows are skipped. Windows on other virtual desktops
   are skipped when "current virtual desktop only" is on.
 - Minimized windows are restored when you cycle to them, if you allow it.
@@ -32,7 +32,7 @@ You can change the modifier in the settings.
 ## Limits
 - Store apps share one frame host, so they all look like the same app. The mod
   skips them.
-- A window that runs as administrator cannot be switched to from Explorer.
+- A window that runs as administrator can't be switched to from Explorer.
 */
 // ==/WindhawkModReadme==
 
