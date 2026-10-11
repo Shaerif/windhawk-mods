@@ -8,6 +8,7 @@ Custom [Windhawk](https://windhawk.net) mods for Windows 11.
 - `mods/focus-follows-mouse.wh.cpp`: focus the window under the mouse without raising it, like many Linux desktops.
 - `mods/titlebar-scroll-rollup.wh.cpp`: scroll on a title bar to roll the window up to its title bar and back.
 - `mods/window-rules.wh.cpp`: per-app position, size, monitor, always-on-top and opacity rules, like KDE window rules.
+- `mods/clipboard-hang-watchdog.wh.cpp`: finds the program that holds the clipboard open or stops responding, and logs it. It can optionally end that program. The log trims itself at a size you choose.
 
 ## Screenshots
 These are plain test windows on a blank backdrop.
