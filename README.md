@@ -1,45 +1,200 @@
-# windhawk-mods
+# Windhawk mods for Windows 11: window management, focus, and clipboard fixes
 
-Custom [Windhawk](https://windhawk.net) mods for Windows 11.
+A small set of custom [Windhawk](https://windhawk.net) mods for Windows 11. Each one fixes a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, and a clipboard that freezes. They're written in C++, they're MIT licensed, and you can install any of them on its own.
 
-## Mods
-- `mods/offscreen-window-rescue.wh.cpp`: moves any normal window back onto the screen when it first opens outside the visible area. It runs in all apps except File Explorer and core system processes. It checks each window once, so you can still drag windows partly off the edge.
-- `mods/same-app-window-cycler.wh.cpp`: Alt+` cycles between windows of the current app, like Cmd+` on a Mac.
-- `mods/focus-follows-mouse.wh.cpp`: focus the window under the mouse without raising it, like many Linux desktops.
-- `mods/titlebar-scroll-rollup.wh.cpp`: scroll on a title bar to roll the window up to its title bar and back.
-- `mods/window-rules.wh.cpp`: per-app position, size, monitor, always-on-top and opacity rules, like KDE window rules.
-- `mods/clipboard-hang-watchdog.wh.cpp`: finds the program that holds the clipboard open or stops responding, and logs it. It can optionally end that program. The log trims itself at a size you choose.
+We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
+
+## Contents
+- [Quick summary](#quick-summary)
+- [Why we build these mods](#why-we-build-these-mods)
+- [The mods](#the-mods)
+- [Install](#install)
+- [Screenshots](#screenshots)
+- [Questions and answers](#questions-and-answers)
+- [For AI agents and tools](#for-ai-agents-and-tools)
+- [Status](#status)
+- [License](#license)
+
+## Quick summary
+| Mod | Problem it solves | Runs in | File |
+| --- | --- | --- | --- |
+| Off-Screen Window Rescue | A window opens outside the visible screen and you can't reach it | All apps except File Explorer and core system processes | `mods/offscreen-window-rescue.wh.cpp` |
+| Same-App Window Cycler | No quick key to switch between windows of one app | explorer.exe | `mods/same-app-window-cycler.wh.cpp` |
+| Focus Follows Mouse | Focus needs a click | explorer.exe | `mods/focus-follows-mouse.wh.cpp` |
+| Title Bar Scroll Roll-Up | A window you want to fold out of the way | explorer.exe | `mods/titlebar-scroll-rollup.wh.cpp` |
+| Window Rules | Apps open at a random spot, size, or opacity every time | All apps except File Explorer and core system processes | `mods/window-rules.wh.cpp` |
+| Clipboard Hang Watchdog | Copy and paste stop working and you don't know why | explorer.exe | `mods/clipboard-hang-watchdog.wh.cpp` |
+
+## Why we build these mods
+Windhawk lets you change how Windows behaves by injecting small pieces of code into running programs. It doesn't patch system files on disk. That makes it a good fit for narrow fixes, because a mod is one readable file and you can turn it off at any time.
+
+We follow three rules when we write a mod:
+- It does one job. If a fix needs a second feature, it becomes a second mod.
+- It ships with settings and safe defaults. Anything that could end a program, like the clipboard watchdog, starts in log-only mode.
+- It says what it can't do. Every section below lists limits, because a fix you misunderstand is worse than no fix.
+
+The first mod in this repo came from a real problem. A Windows installer opened its window outside the visible area and wouldn't come back. That's why the rescue mod exists, and why it checks each window once instead of fighting you every time you drag one near an edge.
+
+## The mods
+
+### Off-Screen Window Rescue
+Problem: some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. The window is running, but you can't see it or grab it.
+
+What it does: when a normal window first appears, the mod checks how much of it is visible. If less than the limit you set is on screen, it moves the window back into the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
+
+Settings:
+- `minVisiblePercent` (default 50): how much of the window must be visible before we leave it alone.
+- `logMoves` (default on): writes each move to the Windhawk log.
+
+Limits: it skips File Explorer and core system processes (csrss.exe, dwm.exe, winlogon.exe, LogonUI.exe, fontdrvhost.exe, sihost.exe, ShellHost.exe). You can add more `@exclude` lines in the source tab for any program you want to skip.
+
+### Same-App Window Cycler
+Problem: Alt+Tab shows every window from every app. If you have six browser windows and a code editor, getting to the right browser window takes several presses.
+
+What it does: press Alt+` to move between the windows of the app you're using, like Cmd+` on a Mac.
+
+Settings:
+- `modifier` (default Alt): Alt, Ctrl+Alt, or Win.
+- `includeMinimized` (default on): minimized windows are part of the cycle.
+- `currentDesktopOnly` (default on): only windows on the current virtual desktop.
+
+### Focus Follows Mouse
+Problem: on Windows, the window under your pointer doesn't get keyboard focus until you click it. Many Linux desktops don't work that way.
+
+What it does: focuses the window under the mouse after a short delay. By default it doesn't raise the window, so a window you're reading stays on top while you type in the one underneath.
+
+Settings:
+- `enabled` (default on).
+- `delayMs` (default 300): how long the pointer must rest on a window before focus moves.
+- `raiseWindow` (default off): also bring the window to the front.
+
+### Title Bar Scroll Roll-Up
+Problem: you want a window out of the way for a moment, but not minimized and not closed.
+
+What it does: scroll the mouse wheel on a title bar and the window rolls up to its title bar. Scroll the other way and it comes back. The frame outline stays and the content is hidden.
+
+Settings:
+- `enabled` (default on).
+- `reverse` (default off): swap the scroll directions.
+- `modifier` (default none): require Ctrl, Shift, or Alt while you scroll.
+
+### Window Rules
+Problem: some apps open in a different place and size every time, and Windows has no built-in way to pin them. KDE has had per-app window rules for a long time.
+
+What it does: you write a rule for an app and the mod applies it when that app's window opens. A rule can set position, size, monitor, maximize, always-on-top, and opacity.
+
+Rule fields:
+- `process`: the program file name, for example `notepad.exe`. Required.
+- `title`: optional, narrows the rule to windows with a matching title.
+- `monitor`: 1 for the first monitor, 2 for the second, and so on. 0 keeps the current monitor.
+- `x`, `y`, `width`, `height`: 0 leaves the value alone.
+- `maximize` and `alwaysOnTop`: on or off.
+- `opacity`: 10 to 100 percent. 0 leaves it alone.
+
+Other settings: `enabled` and `logRules`, both on by default.
+
+Limits: it skips File Explorer and the same core system processes as the rescue mod.
+
+### Clipboard Hang Watchdog
+Problem: copy and paste stop working, sometimes for many seconds, and Windows doesn't tell you which program is responsible.
+
+What it does: a background thread checks the clipboard every 500 ms. If a program holds the clipboard open longer than your threshold, or the clipboard owner stops responding, the mod writes the program name and process ID to a log. In `endHolder` mode it can also end that program once the hold passes the kill limit.
+
+Settings:
+- `thresholdSeconds` (default 5): how long a hold counts as a hang.
+- `action` (default `logOnly`): `logOnly` or `endHolder`.
+- `killAfterSeconds` (default 15): in `endHolder` mode, how long we wait before ending the program.
+- `maxLogKB` (default 100, 0 means no limit): when the log passes this size, it's renamed to `.old` and a fresh log starts.
+- `protectedProcesses`: programs the mod never ends. The default list is explorer.exe, dwm.exe, csrss.exe, winlogon.exe, svchost.exe, sihost.exe, services.exe, lsass.exe.
+
+The log lives at `%LOCALAPPDATA%\clipboard-hang-watchdog.log` and uses 12-hour timestamps.
+
+Limits: it finds a holder only if that program opened the clipboard with a window handle, or if it owns delayed-render data and has stopped responding. Windows waits up to 30 seconds for delayed rendering. A hang inside the Clipboard User Service (cbdhsvc) is a separate cause, and this mod can't see it.
+
+## Install
+You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
+
+From the Windhawk app:
+1. Open Windhawk and choose Create a new mod.
+2. Paste the contents of the `.wh.cpp` file you want.
+3. Compile and enable the mod.
+
+From an elevated shell (run as administrator):
+
+```
+windhawk-cli.exe mod install --file mods/offscreen-window-rescue.wh.cpp --yes
+```
+
+Swap in any file from the `mods` folder. To change a setting from the shell:
+
+```
+windhawk-cli.exe mod settings set local@clipboard-hang-watchdog "'action=endHolder'"
+```
 
 ## Screenshots
 These are plain test windows on a blank backdrop.
 
 Title bar roll-up. Scroll up on the title bar and the window rolls up. The frame outline stays but the content is hidden. Scroll down and it comes back.
 
-![A window before roll-up](images/rollup-before.png)
-![The same window after rolling up](images/rollup-after.png)
+![A test window before title bar roll-up](images/rollup-before.png)
+![The same test window after rolling up](images/rollup-after.png)
 
 Off-screen rescue. We opened a test window at x = -3000. The mod moved it to x = 1000, y = 630 on a 2560 by 1600 screen.
 
-![A window rescued after opening off screen](images/rescue-after.png)
+![A test window rescued after opening off screen](images/rescue-after.png)
 
 Window rules. One rule matches a test window by app and title. The window opened at 60, 60 and was 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set opacity to 80.
 
-![A window placed and made translucent by a rule](images/rules-after.png)
+![A test window placed and made translucent by a window rule](images/rules-after.png)
 
-The window cycler and focus follows mouse have no screenshots because a still image can't show them.
+The window cycler, focus follows mouse, and clipboard watchdog have no screenshots because a still image can't show them.
 
-## Install
-1. Open Windhawk and create a new mod.
-2. Paste the file contents and compile.
+## Questions and answers
 
-Or from an elevated shell:
+### Is it safe to run these mods?
+Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
 
-```
-windhawk-cli.exe mod install --file mods/offscreen-window-rescue.wh.cpp
-```
+### Do these mods work on Windows 10?
+We only test on Windows 11. We haven't tried Windows 10, so we can't say.
+
+### How do I remove a mod?
+Open Windhawk, find the mod, and disable or delete it. From a shell, run `windhawk-cli.exe mod disable <id> --yes` or `windhawk-cli.exe mod remove <id> --yes`.
+
+### Can I use more than one mod?
+Yes. They don't depend on each other.
+
+### How do I stop a mod from touching one program?
+Add an `@exclude` line with the program file name in the mod's source tab.
+
+### My window is still off screen. What now?
+Check that Off-Screen Window Rescue is enabled, then look at the Windhawk log. With `logMoves` on, each move is written there. The mod checks a window only when it first appears, so a window that was already off screen before you installed the mod stays where it is.
+
+### My clipboard still hangs and the watchdog logs nothing.
+That points at the Clipboard User Service (cbdhsvc) or a holder the mod can't see. This mod doesn't cover either case.
+
+## For AI agents and tools
+This section is plain, structured facts so an agent can answer questions about this repo without guessing.
+
+- What this repo is: a collection of six standalone Windhawk mods for Windows 11, written in C++.
+- Language and format: each file in `mods/` ends in `.wh.cpp` and follows Windhawk's mod format, with `// ==WindhawkMod==` metadata at the top and a `// ==WindhawkModSettings==` block for settings.
+- Install target: Windhawk on Windows 11. A mod isn't a standalone program.
+- Install command: `windhawk-cli.exe mod install --file mods/<name>.wh.cpp --yes`, run as administrator.
+- Mod IDs: a locally installed mod gets the ID `local@<file name without .wh.cpp>`, for example `local@clipboard-hang-watchdog`.
+- Setting values: pass as `windhawk-cli.exe mod settings set <id> "'key=value'"`. Option settings use string keys.
+- Build time: Windhawk compiles a mod in about 45 to 60 seconds on our machine.
+- License: MIT. You can copy, change, and redistribute any mod.
+
+| Mod ID | Version | Scope | Settings keys |
+| --- | --- | --- | --- |
+| offscreen-window-rescue | 0.2.0 | all apps except listed excludes | minVisiblePercent, logMoves |
+| same-app-window-cycler | 0.1.0 | explorer.exe | modifier, includeMinimized, currentDesktopOnly |
+| focus-follows-mouse | 0.1.0 | explorer.exe | enabled, delayMs, raiseWindow |
+| titlebar-scroll-rollup | 0.1.0 | explorer.exe | enabled, reverse, modifier |
+| window-rules | 0.1.0 | all apps except listed excludes | enabled, logRules, rules |
+| clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
 
 ## Status
-Tested on Windows 11 build 26300 with a single monitor. The new mods compile but aren't live tested yet. For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet.
+Tested on Windows 11 build 26300 with a single monitor. We checked the roll-up, the rescue mod, and window rules on plain test windows (see the screenshots). For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet. The clipboard watchdog was tested for hold detection and for ending a holder, and the log trim, which moves an over-limit log to a `.old` file, passed a test with an 8-run overflow. We have no recorded live test for the window cycler or focus follows mouse.
 
 ## License
 MIT
