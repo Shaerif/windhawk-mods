@@ -162,7 +162,7 @@ Settings:
 - logLevel (default detailed): basic or detailed. Detailed adds the full program path, the process and thread IDs, every argument, the return address, and the caller module with its offset.
 - fileLog (default on): also appends each line to %ProgramData%\restart-api-logger.log, because a restart can end the program before the Windhawk log is saved.
 
-Limits: it only sees calls from those two programs, and only the nine APIs it hooks. Windhawk protects some system processes, and it isn't verified that it can load into these two. The log file is capped at 256 KB, and the oldest lines are dropped past that.
+Limits: it only sees calls from those two programs, and only the nine APIs it hooks. Windhawk protects some system processes. On our test PC it did load the mod into both. The log file is capped at 256 KB, and the oldest lines are dropped past that.
 
 The full guide is the [Restart API Logger doc](docs/restart-api-logger.md).
 
@@ -286,7 +286,16 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 | restart-api-logger | 0.1.0 | MoUsoCoreWorker.exe, TrustedInstaller.exe | logLevel, fileLog |
 
 ## Status
-Tested on Windows 11 build 26300 with a single monitor. We checked the roll-up, the rescue mod, and window rules on plain test windows (see the screenshots). For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet. The clipboard watchdog was tested for hold detection and for ending a holder, and the log trim, which moves an over-limit log to a .old file, passed a test with an 8-run overflow. Bulk copy file and folder names has one recorded live run on Windows 11. Its hotkeys and right-click entries were tested on a selection of 7 items, 2 folders and 5 files. Zip files, selections of more than 15 files, and other Windows builds haven't been tested. We have no recorded live test for the window cycler, focus follows mouse, or the restart API logger.
+Tested on Windows 11 build 26300 with a single monitor. Seven of the eight mods have a recorded live test. The restart API logger doesn't. The guides in the docs folder have the screenshots.
+
+- Title Bar Scroll Roll-Up: checked on a plain test window. Scroll up rolled it up and scroll down brought it back.
+- Off-Screen Window Rescue: a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet.
+- Window Rules: checked on plain test windows. Version 0.1.1 also passed a test with a fully blank rule 0 above a real rule 1. Rule 1 still moved, sized and faded its test window.
+- Clipboard Hang Watchdog: tested for hold detection and for ending a holder. The log trim, which moves an over-limit log to a .old file, passed a test with an 8-run overflow.
+- Bulk Copy File and Folder Names: one recorded live run. Its hotkeys and right-click entries were tested on a selection of 7 items, 2 folders and 5 files. Zip files, selections of more than 15 files, and other Windows builds haven't been tested.
+- Same-App Window Cycler: one recorded live run on three test windows of one program. Two presses of Alt+Backtick brought them forward in the order the code describes. Alt+Shift+Backtick and real apps haven't been tested.
+- Focus Follows Mouse: one recorded live run with the default settings. A hover with no click gave focus to a window behind another one, and that window stayed behind. raiseWindow on and real apps haven't been tested.
+- Restart API Logger: no recorded live test of a restart. Its log file on our test PC shows that Windhawk loaded it into MoUsoCoreWorker.exe and TrustedInstaller.exe with all nine APIs hooked, but it hasn't logged a restart call yet.
 
 ## Disclaimer
 These mods come with no warranty of any kind, and you use them at your own risk. The author isn't liable for any damage, data loss, crash, or other harm they cause. A mod runs inside Windows apps, so test it on your own machine before you rely on it.
