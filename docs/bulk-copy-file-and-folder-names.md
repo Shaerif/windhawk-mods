@@ -155,11 +155,11 @@ You change these in the mod's Settings tab in Windhawk. The mod picks up new val
 
 | Key | Name in Windhawk | Default | Allowed values | Effect |
 | --- | --- | --- | --- | --- |
-| withExtModifier | Modifiers for copy names with extension | ctrl_shift | ctrl_shift, ctrl_alt, ctrl_alt_shift, alt_shift, win_shift | Modifier keys for the copy with extensions |
+| withExtModifier | Modifiers for copy names with extension | ctrl_shift | ctrl_shift (Ctrl+Shift), ctrl_alt (Ctrl+Alt), ctrl_alt_shift (Ctrl+Alt+Shift), alt_shift (Alt+Shift), win_shift (Win+Shift) | Modifier keys for the copy with extensions |
 | withExtKey | Key for copy names with extension | N | One letter A to Z, one digit 0 to 9, or F1 to F24 | Main key for the copy with extensions |
-| noExtModifier | Modifiers for copy names without extension | ctrl_alt_shift | ctrl_shift, ctrl_alt, ctrl_alt_shift, alt_shift, win_shift | Modifier keys for the copy without extensions |
+| noExtModifier | Modifiers for copy names without extension | ctrl_alt_shift | ctrl_shift (Ctrl+Shift), ctrl_alt (Ctrl+Alt), ctrl_alt_shift (Ctrl+Alt+Shift), alt_shift (Alt+Shift), win_shift (Win+Shift) | Modifier keys for the copy without extensions |
 | noExtKey | Key for copy names without extension | N | One letter A to Z, one digit 0 to 9, or F1 to F24 | Main key for the copy without extensions |
-| separator | Separator | newline | newline, comma, space | What goes between names. comma adds a space after the comma |
+| separator | Separator | newline | newline (New line), comma (Comma), space (Space) | What goes between names. comma adds a space after the comma |
 | quoteNames | Put each name in double quotes | off | on, off | Wraps each name in double quotes |
 | contextMenu | Right-click menu entries | on | on, off | Adds Copy name and Copy name without extension to the classic menu. The keys work either way |
 
@@ -196,12 +196,13 @@ Nothing gets copied when you press the key.
 - Another program may already own the same key combination. The Windhawk log then shows Could not register the copy-with-extension hotkey or Could not register the copy-without-extension hotkey, with an error number. The mod logs this once per settings load, so after the first time you won't see it again until you change a setting. Pick a different key in the settings.
 - If the log shows Could not find the shell view for this window or Could not read the selection from this window, the mod couldn't reach the file list of that window.
 - If the log shows Could not open the clipboard, another program held the clipboard through all five tries.
+- If the log shows CoInitializeEx failed or Could not create the message window, the mod's background thread didn't start its hidden window. The hotkeys are registered on that window, so they won't work.
 
 The right-click entries don't show.
 - You're probably in the compact menu. Use Shift+right-click or Show more options.
 - They don't appear on empty space, on the column header, in the navigation pane, on the desktop, or in dialogs.
 - Check that Right-click menu entries is on.
-- The log line "Could not hook TrackPopupMenuEx, menu entries are off" means the menu hook failed to install. The hotkeys still work.
+- The log line "Could not hook TrackPopupMenuEx, menu entries are off" means the menu hook failed to install. The hotkeys still work. A second line, Could not hook TrackPopupMenu, means the hook on the other menu function failed.
 
 Other limits.
 - The menu labels are in English only.
