@@ -70,7 +70,7 @@ When the mod loads into one of the two programs, it writes one line whose messag
 
 ![The restart logger log file in a plain text window with two INIT lines, both from MoUsoCoreWorker.exe, each listing nine hooked APIs, skipped=[none] and the log file path](screenshots/restart-api-logger-step-1-log-file.png)
 
-These are the last two lines of the real file. Both are INIT lines from MoUsoCoreWorker.exe, and each lists nine hooked APIs with the DLL they came from, skipped=[none] and the log file path.
+These were the last two lines of the real file when the screenshot was taken. Both are INIT lines from MoUsoCoreWorker.exe, and each lists nine hooked APIs with the DLL they came from, skipped=[none] and the log file path.
 
 An INIT line has the program's path, its process ID, the APIs it hooked and the DLL each one came from, the APIs it skipped and why, and where the log file goes.
 
@@ -81,7 +81,7 @@ Keep the mod enabled and use your PC as usual. Nothing shows on screen when it's
 
 No screenshot for this step. There's nothing to see while the mod waits.
 
-The gotcha is the number of INIT lines. Each time Windhawk loads the mod into a new copy of one of the two programs, it writes a new INIT line. The two lines in step 1 have different process IDs, 64700 and 74396, and the file on our test PC holds 60 of them.
+The gotcha is the number of INIT lines. Each time Windhawk loads the mod into a new copy of one of the two programs, it writes a new INIT line. The two lines in step 1 have different process IDs, 64700 and 74396, and the file on our test PC held 64 INIT lines by the evening of October 16, 2026.
 
 ### 3. Read the CALL line after the restart
 Once the PC is back up, open the log file again. A restart can end the program before the Windhawk log is saved, so the file is the place to look. Find the CALL lines. Each one names the API that was called, the program that called it, the reason code and flags in hex, and the module that made the call. In detailed mode, the code builds the line in this shape, with the parts in angle brackets filled in.
@@ -104,7 +104,7 @@ No screenshot for this step, for the same reason as step 3.
 The gotcha is reading a missing RETURN line as a failure. A restart can end the program before the RETURN line is written. The CALL line is already on disk by then, because the mod writes it and pushes it to disk before it passes the call on.
 
 ## The result and the settings behind it
-When we checked, the file on our test PC held 60 lines from October 15 and 16, 2026. All 60 were INIT lines. 53 came from MoUsoCoreWorker.exe and 7 from TrustedInstaller.exe. Every one listed all nine APIs as hooked and said skipped=[none]. There was no CALL line, so the file hasn't caught a restart.
+When the screenshot was taken, the file on our test PC held 60 lines from October 15 and 16, 2026. All 60 were INIT lines. 53 came from MoUsoCoreWorker.exe and 7 from TrustedInstaller.exe. A later read the same evening found 64 lines, still all INIT, 56 from MoUsoCoreWorker.exe and 8 from TrustedInstaller.exe. Every one listed all nine APIs as hooked and said skipped=[none]. There was no CALL line, so the file hasn't caught a restart.
 
 The INIT lines show that Also write a log file in ProgramData was on, because each ends in fileLog=C:\ProgramData\restart-api-logger.log. They can't show the Log detail setting. An INIT line looks the same in basic and detailed mode.
 
