@@ -119,7 +119,7 @@ The test in step 1 checked version 0.1.1, which skips a blank rule and reads on.
 | alwaysOnTop | off | off |
 | opacity | 0 | 70 |
 
-The window ended up at 300, 200 with a size of 760 by 440 and an opacity of 70 percent, which is what rule 1 asked for. So rule 1 was applied even with a blank rule above it. Windows reported the window as layered with an alpha of 178, and 178 is 70 percent of 255 once the mod drops the fraction.
+The window ended up at 300, 200 with a size of 760 by 440 and an opacity of 70 percent, which is what rule 1 asked for. So rule 1 was applied even with a blank rule above it. The demos run also read the window back from Windows as layered with an alpha of 178, and 178 is 70 percent of 255 once the mod drops the fraction.
 
 ## The rule fields
 Each rule has ten fields. These are the exact keys from the mod's settings block. The block gives the rule fields no display names of their own.
@@ -140,7 +140,7 @@ Each rule has ten fields. These are the exact keys from the mod's settings block
 The work area is the part of the monitor the taskbar doesn't cover.
 
 ## When the window moves
-The mod moves a window only if the rule sets a monitor above 0, an x or y that isn't 0, or a width or height above 0. If it does move the window, x and y are always used as offsets from the top left corner of the work area. So an x and y of 0 put the window right in that corner. The mod's own readme says 0 leaves the size alone, and that's true. For x and y it's only true when nothing else in the rule asks for a move.
+The mod moves a window only if the rule sets a monitor above 0, an x or y that isn't 0, or a width or height above 0. If it does move the window, x and y are always used as offsets from the top left corner of the work area. So an x and y of 0 put the window right in that corner. A width or height of 0 always keeps the window's own size. An x or y of 0 only leaves the position alone when nothing else in the rule asks for a move.
 
 Before the move, the mod fits the window inside the work area.
 
