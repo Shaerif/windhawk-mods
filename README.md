@@ -280,7 +280,7 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 | same-app-window-cycler | 0.1.0 | explorer.exe | modifier, includeMinimized, currentDesktopOnly |
 | focus-follows-mouse | 0.1.0 | explorer.exe | enabled, delayMs, raiseWindow |
 | titlebar-scroll-rollup | 0.1.0 | explorer.exe | enabled, reverse, modifier |
-| window-rules | 0.1.0 | all apps except listed excludes | enabled, logRules, rules |
+| window-rules | 0.1.1 | all apps except listed excludes | enabled, logRules, rules |
 | clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
 | bulk-copy-file-and-folder-names | 0.3.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 | restart-api-logger | 0.1.0 | MoUsoCoreWorker.exe, TrustedInstaller.exe | logLevel, fileLog |

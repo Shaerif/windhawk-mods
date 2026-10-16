@@ -35,7 +35,7 @@ The mod ships with one blank rule, so it does nothing until you fill that rule i
 ## How you use it
 
 1. Open the mod's settings in Windhawk.
-2. In Rules, fill in the first rule, the blank one the mod ships with. Don't leave it blank above a new rule, because the mod stops reading the list at a fully blank rule. The section More than one rule below has the details.
+2. In Rules, fill in the blank rule the mod ships with, or add a new rule below it. Both work, because the mod skips blank rules.
 3. Type the program file name in Process, for example notepad.exe.
 4. Fill in the fields you want. Leave the rest at 0 or off.
 5. Save the settings.
@@ -109,7 +109,9 @@ Here's what each field does in this rule:
 
 The mod reads up to 200 rules. For each program it keeps only the rules whose process matches it, in the order you wrote them. When a window opens, the first of those rules that matches its title wins, and the rest are ignored. A rule without a title matches every window of its program, so a rule for the same program below it never gets a turn.
 
-The mod ships with one fully blank rule at the top of the list. Fill in that first rule, at index 0, rather than adding a new rule below it. Here's how the mod reads the list. A rule with an empty process, an empty title, and monitor, width and opacity all at 0 ends the list. The mod stops there and doesn't read any rule below it. A rule with an empty process but a title, a monitor, a width or an opacity set is skipped, and the mod goes on to the next rule. If you leave the first rule blank and add yours below it, the mod stops at the blank one and never loads yours.
+A rule with an empty process does nothing, so the mod skips it and reads on. That's true of the blank rule the mod ships with, too. You can leave it blank and put your rules below it.
+
+Windhawk doesn't tell a mod how long a list is. A rule past the end of the list reads as blank, just like a blank rule you added. So the mod stops after 10 fully blank rules in a row. A fully blank rule has an empty process and title, every number at 0, and maximize and alwaysOnTop off. With 10 or more in a row, the mod doesn't read the rules below them.
 
 A rule that has only a process and nothing else matches, but it doesn't change anything.
 
