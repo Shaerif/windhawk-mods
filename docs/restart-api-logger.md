@@ -28,7 +28,7 @@ A compile takes about 45 to 60 seconds on our machine. A locally installed copy 
 
 ### Check that it's loaded
 
-When the mod loads into one of the two programs, it writes one line that starts with INIT. The line has the program's path, its process ID, the APIs it hooked and the DLL each one came from, the APIs it skipped and why, and where the log file goes. If you never see that line for TrustedInstaller.exe or MoUsoCoreWorker.exe, Windhawk didn't load the mod into that program. Windhawk protects some system processes, and it isn't verified that it can load into these two.
+When the mod loads into one of the two programs, it writes one line whose message starts with INIT. In the Windhawk log the line starts with INIT. In the log file it starts with the date and time, and INIT comes right after them. The line has the program's path, its process ID, the APIs it hooked and the DLL each one came from, the APIs it skipped and why, and where the log file goes. If you never see that line for TrustedInstaller.exe or MoUsoCoreWorker.exe, Windhawk didn't load the mod into that program. Windhawk protects some system processes, and it isn't verified that it can load into these two.
 
 You can also list your mods from an elevated shell and look for local@restart-api-logger:
 
@@ -41,7 +41,7 @@ windhawk-cli.exe mod list
 The mod runs in the background. There's nothing to click.
 
 1. Install and enable the mod. Leave both settings at their defaults.
-2. Look for the INIT line in the Windhawk log or in the log file. The file lives here:
+2. Look for the INIT line in the Windhawk log or in the log file. In the file, INIT comes after the date and time. The file lives here:
 
 ```
 %ProgramData%\restart-api-logger.log
@@ -52,9 +52,9 @@ The mod runs in the background. There's nothing to click.
 5. Find the CALL lines. Each one names the API that was called, the program that called it, the reason code and flags in hex, and the module that made the call.
 6. Look for a RETURN line after it. It's there only if the program was still alive when the call came back.
 
-These are the lines the mod writes:
+These are the messages the mod writes:
 
-| Line starts with | What it means |
+| Message starts with | What it means |
 | --- | --- |
 | INIT | The mod loaded into a program. It lists the hooked APIs, the skipped APIs with a reason, and the log file path, or off when the file log is off. |
 | CALL | A hooked API was called. The mod writes this line before it passes the call on. |
@@ -62,7 +62,7 @@ These are the lines the mod writes:
 | UNINIT | The mod is unloading from a program. |
 | Can't open the log file | The mod couldn't open its file. This line goes to the Windhawk log only. |
 
-Each line in the file starts with the date and a 12-hour time, for example 2026-10-16 3:07:42 PM.
+Each line in the file starts with the date and a 12-hour time, for example 2026-10-16 3:07:42 PM, then two spaces and the message.
 
 ### Basic and detailed lines
 
@@ -75,7 +75,7 @@ Each line in the file starts with the date and a 12-hour time, for example 2026-
 | Flags, in hex | yes | yes |
 | Every argument, with flag names decoded and text arguments read out | no | yes |
 | Return address | no | yes |
-| Caller module | name only | name and offset |
+| Caller module | name only, left out when no module holds the return address | name and offset, or (unknown module) |
 | Result | yes | yes, with process and thread IDs and a short note |
 
 For an API that has no reason code or no flags, the line says n/a in that spot.
@@ -113,7 +113,7 @@ An API that isn't found is skipped with the reason not found. If two names point
 
 Every hook works the same way. It builds the CALL line, writes it to the Windhawk log, appends it to the file, pushes the file to disk and closes it. Then it calls the real function with the same arguments. When that returns, it logs a RETURN line and hands back the real result unchanged. For the APIs that report errors through the Windows last-error value, it puts that value back as it was, too.
 
-Text arguments, such as the machine name and the message, are read with a safe memory read. A missing pointer shows as (null) and a bad one shows as (unreadable). The caller module is the module that holds the return address. If no module holds it, the line says unknown module.
+Text arguments, such as the machine name and the message, are read with a safe memory read. A missing pointer shows as (null) and a bad one shows as (unreadable). The caller module is the module that holds the return address. If no module holds it, a detailed line says caller=(unknown module), and a basic line leaves the caller field out.
 
 The file is capped at 256 KB. When it's bigger than that, the mod keeps about the newest 192 KB before it writes the next line. It cuts at a line break, so the file doesn't start in the middle of a line. When the mod unloads, it writes the UNINIT line. It doesn't delete the file.
 
@@ -134,7 +134,7 @@ The repo records no test of this mod. It isn't verified that Windhawk can load i
 
 There's no INIT line for either program. Windhawk didn't load the mod into it. The mod can't log anything in a program it isn't loaded in.
 
-The INIT line lists APIs under skipped. The reason is in brackets next to each name. Not found means that API isn't in that program. The mod still logs the APIs it did hook.
+The INIT line lists APIs under skipped. Square brackets wrap the whole skipped list, and the reason sits in round brackets right after each name, like NtShutdownSystem(not found). Not found means the mod found no export by that name in the DLLs listed for it above, after it loaded any of them that weren't loaded yet. The mod still logs the APIs it did hook.
 
 The log says Can't open the log file. The mod logs to the Windhawk log only. It tries the file again on every line but reports the failure only once, until you change a setting.
 
@@ -151,7 +151,7 @@ windhawk-cli.exe mod disable local@restart-api-logger --yes
 windhawk-cli.exe mod remove local@restart-api-logger --yes
 ```
 
-The log file stays in %ProgramData%. Delete it by hand if you don't want it.
+The mod doesn't delete its log file, so it stays in %ProgramData%.
 
 ## Use at your own risk
 

@@ -53,22 +53,22 @@ The watchdog runs in the background. There's nothing to click.
 %LOCALAPPDATA%\clipboard-hang-watchdog.log
 ```
 
-5. Look for the newest line that starts with HELD OPEN or OWNER NOT RESPONDING. It names the program, its process ID and the title of its window.
+5. Look for the newest line whose message text starts with HELD OPEN or OWNER NOT RESPONDING. In the file, that text comes right after the date and time. It names the program, its process ID and the title of its window.
 6. Once the hang clears, a later line says the clipboard was released or that the owner is responding again.
 
-Each line in the file starts with the date and a 12-hour time, for example 2026-10-16 3:07:42 PM. The same text goes to the Windhawk log too.
+Each line in the file starts with the date and a 12-hour time, for example 2026-10-16 3:07:42 PM, then two spaces and the message text. The same message text goes to the Windhawk log too.
 
-These are the lines the mod writes:
+These are the messages the mod writes:
 
-| Line starts with | What it means |
+| Message text starts with | What it means |
 | --- | --- |
 | Watchdog started | The mod loaded. It shows the threshold and the action number. |
 | HELD OPEN | A window kept the clipboard open past the threshold. You get the seconds, program name, process ID and window title. |
 | Clipboard released after | The hold that was logged has ended. You get its total length in seconds. |
 | OWNER NOT RESPONDING | The program that owns the clipboard data has stopped responding for longer than the threshold. |
-| Clipboard owner responding again | That owner has recovered. |
+| Clipboard owner responding again | After a reported owner, a later check found no owner that isn't responding. The owner may have recovered, or the clipboard may have a new owner or none, for example after a new copy. |
 | Ended | In endHolder mode the mod ended the holding program. The line ends with done or failed. |
-| Not ending | The holder is on the protected list, so the mod left it alone. |
+| Not ending | The mod left the holder alone, and the line says protected program. That happens when the holder is on the protected list, has process ID 0, or is the explorer.exe the mod runs in. |
 | Could not open | Windows didn't let the mod open the holder to end it. The line has the Windows error number. |
 
 ### Letting it end the holder
@@ -107,7 +107,7 @@ Every line goes to the Windhawk log and is appended to the log file as UTF-8. Wh
 
 ## Limits and known gaps
 
-- Windows reports a holder only when it opened the clipboard with a window handle. A program that opened it with no window isn't reported, and the mod can't name it.
+- Windows reports a holder only when it opened the clipboard with a window handle. A program that opened it with no window isn't logged at all, and the mod can't name it.
 - An owner of copied data is caught only when Windows marks its window as not responding.
 - If the Windows Clipboard User Service (cbdhsvc) is stuck, the mod can't see it.
 - The mod checks every 500 ms and counts in whole seconds. A hold shorter than one check can slip past it.
@@ -116,13 +116,13 @@ Every line goes to the Windhawk log and is appended to the log file as UTF-8. Wh
 
 ## What's tested and what isn't
 
-The repo's status note says the mods were tested on Windows 11 build 26300 with a single monitor. The clipboard watchdog was tested for hold detection and for ending a holder. The log trim, which moves an over-limit log to a .old file, passed a test with an 8-run overflow.
+The README's Status section records these tests on Windows 11 build 26300 with a single monitor. The clipboard watchdog was tested for hold detection and for ending a holder. The log trim, which moves an over-limit log to a .old file, passed a test with an 8-run overflow.
 
 The repo records no separate test of the check for an owner that stops responding. Windows 10 hasn't been tried.
 
 ## Troubleshooting
 
-My clipboard hangs and the log shows nothing. That points at the Clipboard User Service or at a holder that opened the clipboard with no window. The mod covers neither case. The signs of a stuck service are a frozen Win+V history and new copies that don't appear. You can sign out and back in to reset that service.
+My clipboard hangs and the log shows nothing. That points at the Clipboard User Service or at a holder that opened the clipboard with no window. The mod covers neither case. The mod's own notes say signing out and back in resets that service, and that the signs of a stuck service are a frozen Win+V history and new copies that don't appear.
 
 There's no log file. The mod writes its first line as soon as it loads, so a missing file usually means it isn't running. Check that it's enabled. The file path comes from the LOCALAPPDATA variable, and if Windows can't give the mod that path, it writes to the Windhawk log only.
 
@@ -141,7 +141,7 @@ windhawk-cli.exe mod disable local@clipboard-hang-watchdog --yes
 windhawk-cli.exe mod remove local@clipboard-hang-watchdog --yes
 ```
 
-The log file and its .old backup stay in your local app data folder. Delete them by hand if you don't want them.
+The mod doesn't delete its log file or the .old backup. Both stay in your local app data folder.
 
 ## Use at your own risk
 

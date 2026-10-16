@@ -42,7 +42,7 @@ From a shell you've opened as administrator:
 windhawk-cli.exe mod install --file mods/bulk-copy-file-and-folder-names.wh.cpp --yes
 ```
 
-The CLI lives in the C:\Program Files\Windhawk folder. A compile takes about 45 to 60 seconds.
+On our machine the CLI is in the C:\Program Files\Windhawk folder. A compile takes about 45 to 60 seconds.
 
 To check that it loaded, look for the mod in your Windhawk list and make sure it's enabled. From the shell, run the command below and look for local@bulk-copy-file-and-folder-names, which is the id a local install gets.
 
@@ -50,7 +50,7 @@ To check that it loaded, look for the mod in your Windhawk list and make sure it
 windhawk-cli.exe mod list
 ```
 
-The mod doesn't write a line to the Windhawk log when it starts. It writes one each time it copies, like Copied 7 names with extensions, so the quickest proof is to try step 2 below and then read the log.
+The mod doesn't write a line to the Windhawk log when it starts. It writes one each time it copies, like Copied 7 names with extensions. Step 2 below makes it write that line.
 
 ## Use it in four steps
 The numbers match the red badges in the corner of each screenshot.
@@ -88,7 +88,7 @@ The two entries sit in their own group right above Properties.
 ### Folders
 A folder always keeps its whole name, in both modes. The mod checks whether each item is a real folder before it strips anything, so a dot in a folder name is never treated as an extension. That's why Backup.2025 survives step 3.
 
-A zip file is a special case. File Explorer reports a zip as a folder, but it's also a file on disk. The mod only counts an item as a folder when it's a folder and not a file, so Photos.zip comes out as Photos in the without-extension mode.
+A zip file is a special case. File Explorer reports a zip as a folder, but it's also a file on disk. The mod only counts an item as a folder when it's a folder and not a file, so Photos.zip comes out as Photos in the without-extension mode. That result comes from reading the code. No recorded test covers a zip file, and the Photos in the screenshots is a plain folder, not a zip.
 
 ### Mixed selections
 Each item is handled on its own. Folders keep their names, files lose their last extension, and both end up in the same list. Items that aren't files or folders, like drives in This PC, give their internal name instead of the label you see. An item whose name comes back empty is skipped.
@@ -109,7 +109,7 @@ The mod cuts the name at its last dot. If that dot is the first character, it le
 | .gitignore | file | .gitignore |
 | .config.json | file | .config |
 | Readme | file | Readme |
-| Photos.zip | zip file | Photos |
+| Photos.zip | zip file, untested | Photos |
 | Backup.2025 | folder | Backup.2025 |
 
 So archive.tar.gz loses only .gz. The mod has no list of double extensions and doesn't try to guess one.
@@ -117,7 +117,7 @@ So archive.tar.gz loses only .gz. The mod has no list of double extensions and d
 ### Separator and quotes
 Two settings change the text you paste.
 
-The separator goes between names, never after the last one.
+The separator goes between names, never after the last one. In these examples Photos is the plain folder from the demo.
 - newline puts each name on its own line. This is the default.
 - comma puts a comma and a space between names, like Photos, Readme.
 - space puts one space between names.
@@ -135,8 +135,12 @@ The entries only show when all of these hold.
 - At least one item is selected.
 - The menu isn't the one you get from empty space in a folder. The mod spots that one because it has a Refresh command.
 - The menu isn't the column header menu, the one with check marks for the columns you can show.
+- The menu hook installed when the mod loaded. If it didn't, the log says so, as described under Limits and troubleshooting.
+- File Explorer opened the menu with the TPM_RETURNCMD flag, so the pick comes back to the code that opened it. The mod leaves any other menu alone.
+- The mod finds three command IDs the menu isn't already using, one for each entry and one for the separator.
+- All three items go in. If one fails, the mod takes out what it added and shows the menu as it was.
 
-The Windows 11 compact menu, the short one you see first, can't take new entries from a mod. Windows only lets apps with a registered package add to it. That's why you need Shift+right-click or Show more options.
+The Windows 11 compact menu, the short one you see first, can't take new entries from a mod. That's why you need Shift+right-click or Show more options.
 
 ### Large selections
 A file menu usually has a default action, like Open in bold. The column header menu has none, so a missing default could mark the header menu. A comment in the code says File Explorer drops Open when more than 15 files are selected, though. So the mod doesn't reject a menu only for having no default. It rejects it only when it also has check marks or was opened over the column header. That keeps the entries on the menu for big selections. No recorded test covers a selection that large.
@@ -144,7 +148,7 @@ A file menu usually has a default action, like Open in bold. The column header m
 ## Why Ctrl+Shift+N stops making new folders
 Ctrl+Shift+N is also File Explorer's own New folder key. The mod registers its keys as system hotkeys while a File Explorer window is in front. Windows hands a registered hotkey to the program that registered it, and the window in front never gets that key press. So with the mod on and the default keys, Ctrl+Shift+N copies names and no folder appears.
 
-If you use New folder from the keyboard, move the copy key somewhere else. Set Modifiers for copy names with extension to Alt+Shift, for example, and Ctrl+Shift+N goes back to making folders. The keys are released the moment another app comes to the front, so other programs keep their own shortcuts.
+If you use New folder from the keyboard, move the copy key somewhere else. Set Modifiers for copy names with extension to Alt+Shift, for example, and Ctrl+Shift+N goes back to making folders. The keys are released within 100 ms after another app comes to the front, on the mod's next timer check, so other programs keep their own shortcuts.
 
 ## Settings
 You change these in the mod's Settings tab in Windhawk. The mod picks up new values without a restart of File Explorer.
@@ -178,7 +182,7 @@ The mod runs only inside explorer.exe. On load it starts one background thread w
 - When a hotkey fires, the mod finds the active tab of that File Explorer window through the Shell Windows list and asks its folder view for the selection.
 - For each selected item it reads the parsing name, strips the extension if you asked for that, and adds the name to a list.
 - It joins the list with your separator and quotes and puts the text on the clipboard. If another program holds the clipboard, it tries five times, 20 ms apart, before it gives up and logs an error.
-- The menu hooks call the same copy code, so the two paths can't drift apart.
+- The menu entries and the hotkeys call the same copy code, so reading the names, the separator, the quotes and the clipboard write are shared. They find the file view in different ways. The hotkeys look up the window in front, and the menu entries use the window that opened the menu.
 - A second copy request that arrives while one is still running is dropped.
 
 When you disable the mod, it closes any open menu that carries its entries, releases the hotkeys and stops its thread.
@@ -189,7 +193,7 @@ These come from the code and the mod's own readme.
 Nothing gets copied when you press the key.
 - A File Explorer window has to be in front. The desktop and Open or Save dialogs don't count.
 - Something has to be selected. With nothing selected, nothing happens and the clipboard keeps what it had.
-- Another program may already own the same key combination. The Windhawk log then shows Could not register the copy-with-extension hotkey, with an error number. Pick a different key in the settings.
+- Another program may already own the same key combination. The Windhawk log then shows Could not register the copy-with-extension hotkey or Could not register the copy-without-extension hotkey, with an error number. The mod logs this once per settings load, so after the first time you won't see it again until you change a setting. Pick a different key in the settings.
 - If the log shows Could not find the shell view for this window or Could not read the selection from this window, the mod couldn't reach the file list of that window.
 - If the log shows Could not open the clipboard, another program held the clipboard through all five tries.
 
@@ -197,7 +201,7 @@ The right-click entries don't show.
 - You're probably in the compact menu. Use Shift+right-click or Show more options.
 - They don't appear on empty space, on the column header, in the navigation pane, on the desktop, or in dialogs.
 - Check that Right-click menu entries is on.
-- If the log shows Could not hook TrackPopupMenuEx, menu entries are off, the menu hook failed to install. The hotkeys still work.
+- The log line "Could not hook TrackPopupMenuEx, menu entries are off" means the menu hook failed to install. The hotkeys still work.
 
 Other limits.
 - The menu labels are in English only.

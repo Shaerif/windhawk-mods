@@ -1,6 +1,6 @@
 # Title Bar Scroll Roll-Up
 
-Title Bar Scroll Roll-Up is a Windhawk mod for Windows 11 that folds a window up to its title bar when you scroll the mouse wheel on that title bar. Scroll the other way and the window comes back. It's for anyone who wants a window out of the way for a moment but doesn't want to minimize it or close it. KDE and older Linux desktops have had this for years, and Windows doesn't have it at all.
+Title Bar Scroll Roll-Up is a Windhawk mod for Windows 11 that folds a window up to its title bar when you scroll the mouse wheel on that title bar. Scroll the other way and the window comes back. It's for anyone who wants a window out of the way for a moment but doesn't want to minimize it or close it. KDE and older Linux desktops can roll a window up like this, and Windows doesn't have it at all.
 
 ## The problem
 
@@ -22,7 +22,7 @@ From a shell that runs as administrator:
 windhawk-cli.exe mod install --file mods/titlebar-scroll-rollup.wh.cpp --yes
 ```
 
-A compile takes about 45 to 60 seconds on our machine, so give it time.
+A compile takes about 45 to 60 seconds on our machine.
 
 To check that it's loaded, list your mods. A mod you installed from a file gets the ID local@titlebar-scroll-rollup.
 
@@ -30,7 +30,7 @@ To check that it's loaded, list your mods. A mod you installed from a file gets 
 windhawk-cli.exe mod list
 ```
 
-The mod doesn't log anything when it works. It writes one line to the Windhawk log only if it fails to start, and that line begins with Could not install the mouse hook. So the quickest check is to try it on a window, as below.
+The mod doesn't log anything when it works. If it can't install its mouse hook, it writes one line to the Windhawk log that begins with Could not install the mouse hook. If it can't start its own thread, it writes nothing and tells Windhawk that it failed to load.
 
 ## How you use it
 
@@ -92,7 +92,7 @@ When you disable or remove the mod, its thread removes the mouse hook. Then it c
 
 ## What's tested and what isn't
 
-The repo's status note says the mods were tested on Windows 11 build 26300 with a single monitor. The roll-up was checked on plain test windows. Scroll up on the title bar rolled the window up, the frame outline stayed and the content was hidden. Scroll down brought it back.
+The README's Status section records a check of the roll-up on plain test windows, on Windows 11 build 26300 with a single monitor. Scroll up on the title bar rolled the window up, the frame outline stayed and the content was hidden. Scroll down brought it back.
 
 The repo doesn't record a test on real apps, on more than one monitor, with Reverse or a modifier key, or on Windows 10. Treat those as untested.
 

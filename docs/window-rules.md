@@ -22,7 +22,7 @@ From a shell that runs as administrator:
 windhawk-cli.exe mod install --file mods/window-rules.wh.cpp --yes
 ```
 
-A compile takes about 45 to 60 seconds on our machine, so give it time.
+A compile takes about 45 to 60 seconds on our machine.
 
 To check that it's loaded, list your mods. A mod you installed from a file gets the ID local@window-rules.
 
@@ -30,12 +30,12 @@ To check that it's loaded, list your mods. A mod you installed from a file gets 
 windhawk-cli.exe mod list
 ```
 
-The mod ships with one empty rule, so it does nothing until you fill one in. Once you've added a rule and opened a matching window, the Windhawk log shows a line like [ShowWindow] applied a rule to window, followed by the window's handle. That line shows up only while Log applied rules is on, and it's on by default.
+The mod ships with one blank rule, so it does nothing until you fill that rule in. Once you've added a rule and opened a matching window, the Windhawk log shows a line like [ShowWindow] applied a rule to window, followed by the window's handle. That line shows up only while Log applied rules is on, and it's on by default.
 
 ## How you use it
 
 1. Open the mod's settings in Windhawk.
-2. In Rules, fill in the empty rule or add a new one.
+2. In Rules, fill in the first rule, the blank one the mod ships with. Don't leave it blank above a new rule, because the mod stops reading the list at a fully blank rule. The section More than one rule below has the details.
 3. Type the program file name in Process, for example notepad.exe.
 4. Fill in the fields you want. Leave the rest at 0 or off.
 5. Save the settings.
@@ -76,25 +76,28 @@ A rule can't place a window off screen.
 
 ### A worked example
 
-Say you want Notepad windows with notes in the title to open 100 pixels from the left, 80 pixels from the top, at 900 by 700, kept on top and a little see-through. Here's that rule, written out in the same shape the mod file uses for its default rule:
+Say you want Notepad windows with notes in the title to open 100 pixels from the left, 80 pixels from the top, at 900 by 700, kept on top and a little see-through. Here's that rule as the first item of the rules list, in the same nested shape the mod's settings block uses for its default rule:
 
 ```
-- process: notepad.exe
-- title: notes
-- monitor: 0
-- x: 100
-- y: 80
-- width: 900
-- height: 700
-- maximize: false
-- alwaysOnTop: true
-- opacity: 90
+- rules:
+  - - process: notepad.exe
+    - title: notes
+    - monitor: 0
+    - x: 100
+    - y: 80
+    - width: 900
+    - height: 700
+    - maximize: false
+    - alwaysOnTop: true
+    - opacity: 90
 ```
+
+In the Windhawk settings screen you type the same values into the fields of one rule.
 
 Here's what each field does in this rule:
 
 - process notepad.exe limits the rule to Notepad. The mod loads this rule only inside notepad.exe.
-- title notes means a Notepad window only matches if its title has the word notes in it. Notes.txt matches. Untitled doesn't.
+- title notes means a Notepad window only matches if its title contains the text notes anywhere, in any letter case. Notes.txt matches, and so does keynotes.txt. Untitled doesn't.
 - monitor 0 keeps the window on whichever monitor it opened on.
 - x 100 and y 80 put the top left corner 100 pixels right of and 80 pixels below the corner of that monitor's work area.
 - width 900 and height 700 set the size. On a small screen, the size is cut down to fit the work area.
@@ -104,9 +107,11 @@ Here's what each field does in this rule:
 
 ### More than one rule
 
-The mod reads up to 200 rules. For each program it keeps only the rules whose process matches it, in the order you wrote them. When a window opens, the first of those rules that matches its title wins, and the rest are ignored. So put the rule with a title before a rule for the same program without one.
+The mod reads up to 200 rules. For each program it keeps only the rules whose process matches it, in the order you wrote them. When a window opens, the first of those rules that matches its title wins, and the rest are ignored. A rule without a title matches every window of its program, so a rule for the same program below it never gets a turn.
 
-A rule with an empty process is skipped. A rule that has only a process and nothing else matches, but it doesn't change anything.
+The mod ships with one fully blank rule at the top of the list. Fill in that first rule, at index 0, rather than adding a new rule below it. Here's how the mod reads the list. A rule with an empty process, an empty title, and monitor, width and opacity all at 0 ends the list. The mod stops there and doesn't read any rule below it. A rule with an empty process but a title, a monitor, a width or an opacity set is skipped, and the mod goes on to the next rule. If you leave the first rule blank and add yours below it, the mod stops at the blank one and never loads yours.
+
+A rule that has only a process and nothing else matches, but it doesn't change anything.
 
 ## Settings
 
@@ -148,7 +153,7 @@ The mod has no unload step of its own. When you disable it, Windhawk removes the
 
 ## What's tested and what isn't
 
-The repo's status note says the mods were tested on Windows 11 build 26300 with a single monitor. Window Rules was checked on a plain test window. One rule matched the test window by app and title. The window opened at 60, 60 at 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set its opacity to 80.
+The README's Status section records a check of Window Rules on a plain test window, on Windows 11 build 26300 with a single monitor. One rule matched the test window by app and title. The window opened at 60, 60 at 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set its opacity to 80.
 
 The repo doesn't record a test of the monitor field, the maximize field or always on top, a test with more than one monitor, a test on real apps, or a test on Windows 10. Treat those as untested.
 

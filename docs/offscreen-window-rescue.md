@@ -38,7 +38,7 @@ The mod runs in the background inside your apps. There's nothing to click.
 
 1. Install and enable the mod. Leave logMoves on.
 2. Open the program whose window keeps landing off screen.
-3. If less than half of its window is inside the work area of the nearest monitor, the mod moves it to the center of that monitor. The work area is the part of the screen the taskbar doesn't cover.
+3. If less than the minimum visible percent of its window (default 50) is inside the work area of the nearest monitor, the mod moves it to the center of that monitor. The work area is the part of the screen the taskbar doesn't cover.
 4. Look in the Windhawk log. Each move gets one line. It starts with the name of the Windows call that showed the window, in square brackets, then the word moved and the window handle. After that come the old left, top, right and bottom edges, the visible share as a percent, and the new top-left corner.
 5. Drag the window partly off the edge if you want to. The mod has already checked it, so it leaves it there.
 
@@ -69,7 +69,7 @@ Each hook first lets the real call run. Then it checks whether the window counts
 
 The mod keeps a list of the windows it has already checked. A window is measured only the first time it's seen. The mod works out how much of the window's area lies inside the work area of the nearest monitor. If that share is below minVisiblePercent, it shrinks the window to fit the work area if it's too big, centers it there, and moves it without changing its place in the stack or activating it.
 
-The list holds up to 4096 windows. Past that it's cleared and starts again. The mod has no unload code of its own, and windows it has moved stay where it put them.
+When the list grows past 4096 windows, it's cleared and starts again. The mod has no unload code of its own, and windows it has moved stay where it put them.
 
 ## Limits and known gaps
 
@@ -82,7 +82,7 @@ The list holds up to 4096 windows. Past that it's cleared and starts again. The 
 
 ## What's tested and what isn't
 
-The repo's status note says the mods were tested on Windows 11 build 26300 with a single monitor. For this mod, a test window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. The README also reports a test window opened at x = -3000 that the mod moved to x = 1000, y = 630 on a 2560 by 1600 screen.
+The README's Status section records a test of this mod on Windows 11 build 26300 with a single monitor. A test window opened at x = -3000 stayed there with the mod off. With the mod on, it moved to the center of the screen, which the README's screenshot gives as x = 1000, y = 630 on a 2560 by 1600 screen.
 
 It hasn't been tested on a real MSI installer yet. The repo records no test with more than one monitor, and Windows 10 hasn't been tried.
 

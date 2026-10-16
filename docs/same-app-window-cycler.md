@@ -6,7 +6,7 @@ In this doc, Backtick means the key above Tab on a US keyboard. The mod asks Win
 
 ## The problem
 
-Alt+Tab shows every window from every app in one row. Say you've got six browser windows and a code editor open. To reach the right browser window you press Tab several times and read each thumbnail, and the code editor sits in the middle of the row the whole time. Windows has no key that stays inside one app, and that's the gap this mod fills.
+Alt+Tab shows every window from every app in one row. Say you've got six browser windows and a code editor open. To reach the right browser window you press Tab several times and read each thumbnail, and the code editor sits in the middle of the row the whole time. Windows has no key that stays inside one app.
 
 ## Install
 
@@ -24,7 +24,7 @@ From a shell that runs as administrator:
 windhawk-cli.exe mod install --file mods/same-app-window-cycler.wh.cpp --yes
 ```
 
-A compile takes about 45 to 60 seconds on our machine, so give it time.
+A compile takes about 45 to 60 seconds on our machine.
 
 To check that it's loaded, list your mods. A mod you installed from a file gets the ID local@same-app-window-cycler.
 
@@ -82,31 +82,31 @@ A window counts only if all of these hold:
 
 EnumWindows returns windows from the top of the stack down, so the front window comes first. Forward picks the last window in that list, which is the one furthest back. Backward picks the second one. The mod restores the target if it's minimized, briefly attaches its input to the thread of the current front window, and calls BringWindowToTop and SetForegroundWindow. It writes one line to the Windhawk log each time it switches.
 
-When you disable or remove the mod, it tells its thread to quit. The thread destroys the hidden window, which unregisters both hotkeys, and then the window class is removed. Nothing is left behind in Explorer.
+When you disable or remove the mod, it tells its thread to quit. The thread destroys the hidden window, which unregisters both hotkeys, and then the window class is removed. The mod waits up to 3 seconds for the thread to finish. If it hasn't finished by then, the mod closes its handle to the thread and unloads anyway. We haven't tested that case.
 
 ## Limits and known gaps
 
 - Store apps share one frame host process, ApplicationFrameHost.exe, so they'd all look like one app. The mod does nothing when one of them is in front.
 - The mod's own notes say a window that runs as administrator can't be switched to from Explorer.
 - Windows only count as the same app when they come from the same program file at the same path. Two copies of one program installed in two folders won't cycle together.
-- When File Explorer is in front, the mod only acts if that Explorer window itself counts as a normal window. The desktop and the taskbar don't.
+- When File Explorer is in front, the mod only acts if that Explorer window itself counts as a normal window. The code has no special check for the desktop or the taskbar, and we haven't tested what it does when one of them is in front.
 - The mod's own notes say Alt+Shift+Backtick goes the other way. In the code it always brings the second window in the stack to the front. With two windows that's the same as going forward. With three or more, pressing it over and over flips between the same two windows instead of walking the whole list backward.
 - With Current virtual desktop only off, windows on other desktops are added to the cycle. We haven't tested what Windows does when the mod brings one of them to the front.
 - The key is fixed in code as VK_OEM_3. Only the modifier can be changed in the settings.
 
 ## What's tested and what isn't
 
-The repo's status note says the mods were tested on Windows 11 build 26300 with a single monitor. It also says there's no recorded live test for the window cycler. Everything in this doc comes from reading the code and the repo's text, not from a test run. The repo hasn't tried any of the mods on Windows 10.
+The README's Status section says there's no recorded live test for the window cycler. The tests it does record ran on other mods, on Windows 11 build 26300 with a single monitor. Everything in this doc comes from reading the code and the repo's text, not from a test run. The repo hasn't tried any of the mods on Windows 10.
 
 ## Troubleshooting
 
-Nothing happens when you press the keys. Check the Windhawk log first. A line that starts with Could not register means Windows refused the key combination, and the error number after it tells you why. Another program that already holds the same combination is a likely cause. Pick a different modifier in the settings and try again.
+Nothing happens when you press the keys. Check the Windhawk log first. A line that starts with Could not register means Windows refused the key combination, and the error number after it tells you why. One possible cause, which we haven't checked, is another program that already holds the same combination. Pick a different modifier in the settings and try again.
 
 Nothing happens, and the log has no error. The app in front may have only one window that counts. Untitled windows, dialogs with an owner, tool windows and hidden windows don't count. If it's a Store app, the mod skips it on purpose.
 
 A minimized window gets skipped. Include minimized windows is probably off. Turn it back on.
 
-A window on another virtual desktop never shows up. That's the default. Turn off Current virtual desktop only if you want those windows in the cycle, and keep in mind that this path hasn't been tested.
+A window on another virtual desktop never shows up. That's the default. Turning off Current virtual desktop only adds those windows to the cycle, but that path hasn't been tested.
 
 ## Uninstall
 

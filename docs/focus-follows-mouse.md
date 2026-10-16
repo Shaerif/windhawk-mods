@@ -59,7 +59,7 @@ windhawk-cli.exe mod settings set local@focus-follows-mouse "'delayMs=500'"
 
 | Key | Default | Allowed values | Effect |
 | --- | --- | --- | --- |
-| enabled | on | On or off. | On turns hover focus on. Off puts back the Windows values the mod saved when it loaded. |
+| enabled | on | On or off. | On turns hover focus on. Off puts back the Windows values the mod saved the first time it applied its values with enabled on. |
 | delayMs | 300 | 0 to 5000 milliseconds. A value below 0 counts as 0 and a value above 5000 counts as 5000. | How long the pointer has to rest on a window before it gets focus. |
 | raiseWindow | off | On or off. | On also brings the focused window to the front. Off gives it focus and leaves it where it is in the stack. |
 
@@ -73,20 +73,20 @@ The mod loads only into explorer.exe, but it doesn't hook anything there. It cha
 - the tracking delay, set from delayMs
 - the raise-on-hover flag, set from raiseWindow
 
-These settings apply to your whole session, not only to Explorer. That's why the mod can live in explorer.exe and still change how every app's windows behave.
+These are Windows system settings, not Explorer settings, which is why the mod can live in explorer.exe. We haven't tested whether the change reaches every app's windows.
 
 The first time it applies its values, the mod reads and saves the three values Windows had. When you turn enabled off, or when the mod unloads, it writes those saved values back. It doesn't write to the registry. Windows resets these values at the next sign in, and the mod sets them again each time Explorer starts.
 
 ## Limits and known gaps
 
 - If you change these options in Windows Settings while the mod runs, the mod keeps its own values until you change a mod setting or reload it.
-- When the mod unloads, it puts back the values it saved when it loaded. A change you made in Windows Settings in between is replaced by those older values.
+- When the mod unloads, it puts back the values it saved the first time it applied its values with enabled on. If enabled was never on, it saved nothing and puts nothing back. A change you made in Windows Settings in between is replaced by those older values.
 - Windows decides which windows count. Menus and the taskbar behave as Windows decides.
-- If the mod can't read the current values when it loads, it doesn't change anything.
+- If the mod can't read the current values when it first applies its own, it doesn't change anything.
 
 ## What's tested and what isn't
 
-The repo's status note says there's no recorded live test for focus follows mouse. The repo also says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
+The README's Status section says there's no recorded live test for focus follows mouse. The repo also says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
 
 ## Troubleshooting
 
