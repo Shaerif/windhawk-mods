@@ -42,6 +42,14 @@ The mod runs in the background inside your apps. There's nothing to click.
 4. Look in the Windhawk log. Each move gets one line. It starts with the name of the Windows call that showed the window, in square brackets, then the word moved and the window handle. After that come the old left, top, right and bottom edges, the visible share as a percent, and the new top-left corner.
 5. Drag the window partly off the edge if you want to. The mod has already checked it, so it leaves it there.
 
+## What it looks like
+
+This screenshot comes from the rescue test in the README's Status section. A test window opened at x = -3000, far past the left edge of the screen. With the mod on, it was moved back onto the screen, and this screenshot shows it there. Its title says where it opened.
+
+![A test window titled Opened at x = -3000, shown on screen after the rescue](../images/rescue-after.png)
+
+There's no before screenshot. The window was off the screen then, so a screenshot of the screen would only show an empty backdrop and wouldn't prove anything.
+
 ## Settings
 
 | Key | Default | Allowed values | Effect |

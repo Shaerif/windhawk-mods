@@ -55,6 +55,14 @@ To change a setting from the shell, pass the key and value like this:
 windhawk-cli.exe mod settings set local@focus-follows-mouse "'delayMs=500'"
 ```
 
+## See it work
+
+This screenshot comes from one live run on Windows 11 build 26300 with the default settings, delayMs 300 and raiseWindow off. The run opened two plain test windows on a solid backdrop, called Front window and Back window. Front window was made the active window first. Then the pointer moved onto the part of Back window you can see and stayed there for 1.5 seconds, with no click. Then the run typed the words typed here.
+
+![Two overlapping test windows. Back window shows the words typed here, and Front window still sits on top of it](screenshots/focus-follows-mouse-step-1-typing-into-back-window.png)
+
+The words went into Back window. Front window still covers Back window's top right corner, so the hover gave Back window focus and Back window didn't come to the front. Back window's title text is dark and Front window's is gray, which is how Windows 11 marks the active window. The red arrow marks the spot where the pointer rested. The screenshot doesn't show the pointer itself.
+
 ## Settings
 
 | Key | Default | Allowed values | Effect |
@@ -86,7 +94,9 @@ The first time it applies its values, the mod reads and saves the three values W
 
 ## What's tested and what isn't
 
-The README's Status section says there's no recorded live test for focus follows mouse. The repo also says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
+The README's Status section records one live run of focus follows mouse on Windows 11 build 26300 with a single monitor, the one in the screenshot above. A hover with no click gave focus to a window behind another one. The typed text went into it, and Windows still reported the front window above it in the stack.
+
+That run used two test windows, the default delay of 300 ms and raiseWindow off. raiseWindow on, other delays, real apps such as a browser, and the restore of the saved values when the mod unloads haven't been tested. The repo also says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
 
 ## Troubleshooting
 

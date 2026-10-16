@@ -115,6 +115,14 @@ Windhawk doesn't tell a mod how long a list is. A rule past the end of the list 
 
 A rule that has only a process and nothing else matches, but it doesn't change anything.
 
+### A live test of a rule below a blank rule
+
+Version 0.1.1 skips a blank rule and reads on. This test checks that on Windows 11 build 26300. Rule 0 was left fully blank. Rule 1 matched powershell.exe windows with Blank rule test in the title, and it set x 300, y 200, width 760, height 440 and opacity 70. Then a test window with that title opened at 60, 60 with a size of 380 by 220. Once it was open, the window read its own position, size and opacity back from Windows and wrote them into its body.
+
+![A test window named Blank rule test whose text reads position 300, 200, size 760 x 440, opacity 70 percent](screenshots/window-rules-step-1-rule-below-blank-rule.png)
+
+The window ended up at 300, 200 with a size of 760 by 440 and an opacity of 70 percent. So rule 1 was applied even with a blank rule above it. The window looks gray because the dark backdrop shows through it.
+
 ## Settings
 
 You'll find these in the mod's settings in Windhawk. The keys and defaults come from the settings block in the mod file.
@@ -156,6 +164,8 @@ The mod has no unload step of its own. When you disable it, Windhawk removes the
 ## What's tested and what isn't
 
 The README's Status section records a check of Window Rules on a plain test window, on Windows 11 build 26300 with a single monitor. One rule matched the test window by app and title. The window opened at 60, 60 at 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set its opacity to 80.
+
+A second live test ran on version 0.1.1, with a fully blank rule 0 and a real rule in rule 1. It passed. Rule 1 moved its test window to 300, 200, made it 760 by 440 and set its opacity to 70, as the screenshot above shows. The test didn't cover 10 or more blank rules in a row.
 
 The repo doesn't record a test of the monitor field, the maximize field or always on top, a test with more than one monitor, a test on real apps, or a test on Windows 10. Treat those as untested.
 

@@ -28,13 +28,21 @@ A compile takes about 45 to 60 seconds on our machine. A locally installed copy 
 
 ### Check that it's loaded
 
-When the mod loads into one of the two programs, it writes one line whose message starts with INIT. In the Windhawk log the line starts with INIT. In the log file it starts with the date and time, and INIT comes right after them. The line has the program's path, its process ID, the APIs it hooked and the DLL each one came from, the APIs it skipped and why, and where the log file goes. If you never see that line for TrustedInstaller.exe or MoUsoCoreWorker.exe, Windhawk didn't load the mod into that program. Windhawk protects some system processes, and it isn't verified that it can load into these two.
+When the mod loads into one of the two programs, it writes one line whose message starts with INIT. In the Windhawk log the line starts with INIT. In the log file it starts with the date and time, and INIT comes right after them. The line has the program's path, its process ID, the APIs it hooked and the DLL each one came from, the APIs it skipped and why, and where the log file goes. If you never see that line for TrustedInstaller.exe or MoUsoCoreWorker.exe, Windhawk didn't load the mod into that program. Windhawk protects some system processes. On our test PC it did load the mod into both, as the log below shows.
 
 You can also list your mods from an elevated shell and look for local@restart-api-logger:
 
 ```
 windhawk-cli.exe mod list
 ```
+
+### What the log file looks like
+
+This screenshot shows the last two lines of the real log file on our test PC, opened in a plain text window on a solid backdrop.
+
+![Two INIT lines from the restart logger log file, both from MoUsoCoreWorker.exe, each with nine hooked APIs and skipped=[none]](screenshots/restart-api-logger-step-1-log-file.png)
+
+Both are INIT lines from MoUsoCoreWorker.exe. Each one lists the nine APIs as hooked, says skipped=[none] and gives the log file path. When we checked, the file held 60 lines from October 15 and 16, 2026. 53 were INIT lines from MoUsoCoreWorker.exe and 7 were INIT lines from TrustedInstaller.exe. It had no CALL line yet, so it hasn't caught a restart.
 
 ## How you use it
 
@@ -122,13 +130,13 @@ The file is capped at 256 KB. When it's bigger than that, the mod keeps about th
 - Version 1 only logs. It doesn't block, delay or change any call.
 - It loads into two programs only. A restart that another program asks for isn't logged.
 - It only sees the nine APIs listed above. A restart that goes another way isn't logged.
-- Windhawk protects some system processes, and it isn't verified that it can load into these two.
+- Windhawk protects some system processes. On our test PC it loaded the mod into both programs, but no other PC has been checked.
 - A restart can end the program before the RETURN line is written. The CALL line is already on disk by then.
 - When the file passes 256 KB, the oldest lines are dropped.
 
 ## What's tested and what isn't
 
-The repo records no test of this mod. It isn't verified that Windhawk can load it into MoUsoCoreWorker.exe or TrustedInstaller.exe, and the repo doesn't record a restart that was logged with it. The repo says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
+The README's Status section records what the log file on our test PC shows. On Windows 11 build 26300, Windhawk loaded the mod into MoUsoCoreWorker.exe and TrustedInstaller.exe again and again on October 15 and 16, 2026, and every INIT line hooked all nine APIs. The file has no CALL line, so the repo doesn't record a restart that was logged with it. The repo says the mods are tested only on Windows 11, and Windows 10 hasn't been tried.
 
 ## Troubleshooting
 

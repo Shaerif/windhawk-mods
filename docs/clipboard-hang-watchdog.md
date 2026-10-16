@@ -58,6 +58,14 @@ The watchdog runs in the background. There's nothing to click.
 
 Each line in the file starts with the date and a 12-hour time, for example 2026-10-16 3:07:42 PM, then two spaces and the message text. The same message text goes to the Windhawk log too.
 
+### What the log file looks like
+
+This screenshot shows the first 14 lines of the real log file on our test PC, opened in a plain text window on a solid backdrop. The four HELD OPEN lines come from the hold test that the README's Status section describes. In that test a window called ClipHoldTest held the clipboard open on purpose. No hang was staged for this guide.
+
+![The watchdog log file with four HELD OPEN lines, each one followed by a Clipboard released line, and then six Watchdog started lines](screenshots/clipboard-hang-watchdog-step-1-log-file.png)
+
+Each HELD OPEN line names powershell.exe, its process ID and the window title ClipHoldTest. The Clipboard released line after it gives the full length of that hold, 7 or 8 seconds. The Watchdog started lines show action 1, which is log only.
+
 These are the messages the mod writes:
 
 | Message text starts with | What it means |

@@ -48,6 +48,32 @@ If you hold the keys down, the switch doesn't repeat. The mod registers both key
 
 If you change the modifier to Ctrl+Alt or Win, the same steps apply with that modifier in place of Alt. Shift still reverses.
 
+## See it work in three steps
+
+These screenshots come from one live run on Windows 11 build 26300 with the default settings. The run opened three plain test windows of one program, called Window A, Window B and Window C, on a solid backdrop. They aren't Notepad windows. The numbers match the red badges, and each arrow points at the window that's in front. During the run, the stack order was also read back from Windows after each step.
+
+### 1. Start with Window A in front
+
+Window A is the active window. Window B sits behind it, and Window C is at the back of the stack.
+
+![Three overlapping test windows with Window A in front, Window B behind it and Window C at the back](screenshots/same-app-window-cycler-step-1-window-a-in-front.png)
+
+### 2. Press Alt+Backtick once
+
+The window furthest back comes to the front, and that's Window C. Window A's title text has turned gray because it isn't the active window anymore.
+
+![The same three windows after one press of Alt+Backtick, with Window C now in front](screenshots/same-app-window-cycler-step-2-first-press-window-c.png)
+
+The order Windows reported was C, A, B.
+
+### 3. Press Alt+Backtick again
+
+Window B was furthest back after step 2, so it comes to the front now.
+
+![The same three windows after a second press, with Window B now in front](screenshots/same-app-window-cycler-step-3-second-press-window-b.png)
+
+The order Windows reported was B, C, A. The run stopped here, so it didn't record a third press.
+
 ## Settings
 
 You'll find these in the mod's settings in Windhawk. The keys and defaults come from the settings block in the mod file.
@@ -96,13 +122,17 @@ When you disable or remove the mod, it tells its thread to quit. The thread dest
 
 ## What's tested and what isn't
 
-The README's Status section says there's no recorded live test for the window cycler. The tests it does record ran on other mods, on Windows 11 build 26300 with a single monitor. Everything in this doc comes from reading the code and the repo's text, not from a test run. The repo hasn't tried any of the mods on Windows 10.
+The README's Status section records one live run of the window cycler on Windows 11 build 26300 with a single monitor. Two presses of Alt+Backtick on three test windows of one program went A to C to B, which is the order the code describes. The screenshots above come from that run.
+
+Nothing else has a recorded test. That covers Alt+Shift+Backtick, minimized windows, virtual desktops, the Ctrl+Alt and Win modifiers, Store apps, Notepad and other real apps. The rest of this doc comes from reading the code and the repo's text. The repo hasn't tried any of the mods on Windows 10.
 
 ## Troubleshooting
 
 Nothing happens when you press the keys. Check the Windhawk log first. A line that starts with Could not register means Windows refused the key combination, and the error number after it tells you why. One possible cause, which we haven't checked, is another program that already holds the same combination. Pick a different modifier in the settings and try again.
 
 Nothing happens, and the log has no error. The app in front may have only one window that counts. Untitled windows, dialogs with an owner, tool windows and hidden windows don't count. If it's a Store app, the mod skips it on purpose.
+
+A window with no taskbar button gets skipped. Some apps give a window like that a hidden owner window, and the mod leaves out any window with an owner. Our own first test hit this. Test windows with no taskbar button weren't cycled, and the same windows with a taskbar button were.
 
 A minimized window gets skipped. Include minimized windows is probably off. Turn it back on.
 

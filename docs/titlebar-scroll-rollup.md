@@ -44,6 +44,18 @@ If you turn on Reverse the scroll direction, scroll down rolls up and scroll up 
 
 A rolled-up window keeps its spot on the taskbar. Its taskbar thumbnail still shows the full window.
 
+## What it looks like
+
+These two screenshots come from the roll-up test in the README's Status section. They show a plain test window called Demo window before and after a scroll up on its title bar. A still image can't show a key you hold, so there's no screenshot for Hold a key while scrolling.
+
+![A test window called Demo window with all of its text in view, before the roll-up](../images/rollup-before.png)
+
+Before the scroll, you see the whole window with its text.
+
+![The same test window after a scroll up on its title bar, with only the title bar and the frame outline left](../images/rollup-after.png)
+
+After the scroll up, the title bar stays and the content is gone. The frame outline is still there, and you can see the backdrop through it.
+
 ## Settings
 
 You'll find these in the mod's settings in Windhawk. The keys and defaults come from the settings block in the mod file.
