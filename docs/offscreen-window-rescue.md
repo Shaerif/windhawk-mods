@@ -1,6 +1,6 @@
 # Off-Screen Window Rescue tutorial
 
-This guide sets up the Off-Screen Window Rescue mod for Windhawk and walks you through one rescue. When you're done, a window that opens outside the visible screen gets moved back to the middle of your screen the moment it appears. It's for you if an installer, an old app, or an app that remembers a monitor you've since unplugged keeps opening where you can't reach it. The mod checks each window once, when it first appears, so it won't fight you when you drag a window near an edge later. The screenshot comes from the rescue test in the README's Status section, on a test window that opened at x = -3000.
+This guide sets up the Off-Screen Window Rescue mod for Windhawk and walks you through one rescue. When you're done, a window that opens outside the visible screen gets moved back to the middle of your screen the moment it appears. It's for you if an installer, an old app, or an app that remembers a monitor you've since unplugged keeps opening where you can't reach it. The mod checks each window once, when it first appears, so it won't fight you when you drag a window near an edge later. The screenshot comes from a live run on Windows 11 build 26300, on a test window that opened at x = -3000.
 
 ## Contents
 - [What it fixes](#what-it-fixes)
@@ -53,14 +53,14 @@ windhawk-cli.exe mod list
 The mod doesn't write a line when it loads. It only logs when it moves a window, and only while Log moves is on. It's on by default.
 
 ## Use it in three steps
-The screenshot in step 1 is an older capture from the README and carries no step badge.
+The number matches the red badge in the corner of the screenshot.
 
 ### 1. Open the program whose window lands off screen
 Start the program as you normally would. With the default Minimum visible share of 50, if less than half of its window is inside the work area of the nearest monitor, the mod moves the window to the center of that work area. The work area is the part of the screen the taskbar doesn't cover.
 
-![A test window titled Opened at x = -3000, shown on screen after the rescue](../images/rescue-after.png)
+![The whole 2560 by 1600 screen, blank except for one test window in the middle in a red box. Its title says opened at x = -3000, now at 900, 580. Its text says it opened at -3000, 300, size 760 x 440, and measured now: position 900, 580, size 760 x 440, screen 2560 x 1600](screenshots/offscreen-window-rescue-step-1-after-rescue.png)
 
-The test window's title says it opened at x = -3000, and here it's on screen.
+The picture is the whole 2560 by 1600 screen with a plain backdrop over it. The test window opened at -3000, 300, which is off the left edge. Right after it appeared, it read its own spot back from Windows and wrote it into its title and its text. It's at 900, 580 and still 760 by 440. For a window that size, that's the middle of a 2560 by 1600 screen.
 
 There's no before screenshot. The window was off the screen then, so a capture of the screen would only show an empty backdrop and wouldn't prove anything.
 
@@ -88,6 +88,8 @@ The gotcha is a program that hides its window and shows it again. The mod rememb
 
 ## The result and the settings behind it
 The test in the README's Status section ran on Windows 11 build 26300 with a single monitor. A test window opened at x = -3000. It stayed there with the mod off. With the mod on, it moved to the center of the screen, and the README's screenshot notes give that spot as x = 1000, y = 630 on a 2560 by 1600 screen.
+
+The screenshot in step 1 comes from a later run on 2026-10-16. The installed settings were minVisiblePercent 50 and logMoves on, read with mod settings get. A 760 by 440 test window opened at -3000, 300 and measured 900, 580 right after it appeared. That run didn't repeat the check with the mod off.
 
 The record doesn't list the settings. A window at x = -3000 has none of its area on the screen, so it's below any Minimum visible share you can set, the default of 50 included.
 
@@ -149,7 +151,7 @@ A program's window never moves. If the program is File Explorer or one of the ex
 The mod moved a window you didn't want moved. Add an @exclude line with that program's file name in the mod's Source code tab, or lower Minimum visible share.
 
 ## What's tested and what isn't
-The README's Status section records the test shown in step 1, on Windows 11 build 26300 with a single monitor. A test window opened at x = -3000 stayed there with the mod off and moved to the center with the mod on.
+The README's Status section records a test on Windows 11 build 26300 with a single monitor. A test window opened at x = -3000 stayed there with the mod off and moved to the center with the mod on. The screenshot in step 1 comes from a later run with the mod on.
 
 It hasn't been tested on a real MSI installer yet. The repo records no test with more than one monitor, no test of a drag after the rescue, and no capture of the log line. Windows 10 hasn't been tried. Those follow from reading the code.
 

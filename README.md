@@ -127,18 +127,18 @@ These are plain test windows on a blank backdrop.
 
 Title bar roll-up. Scroll up on the title bar and the window rolls up. The frame outline stays but the content is hidden. Scroll down and it comes back.
 
-![A test window before title bar roll-up](images/rollup-before.png)
-![The same test window after rolling up](images/rollup-after.png)
+![A test window called Demo window with its text in view and a red box on its title bar, before the roll-up](docs/screenshots/titlebar-scroll-rollup-step-1-before.png)
+![The same test window after one scroll up on its title bar. Only the title bar and the frame outline are left](docs/screenshots/titlebar-scroll-rollup-step-2-after.png)
 
-Off-screen rescue. We opened a test window at x = -3000. The mod moved it to x = 1000, y = 630 on a 2560 by 1600 screen.
+Off-screen rescue. We opened a 760 by 440 test window at x = -3000. Right after it appeared, it measured 900, 580, the middle of the 2560 by 1600 screen.
 
-![A test window rescued after opening off screen](images/rescue-after.png)
+![The whole screen with one test window in the middle. Its title says opened at x = -3000, now at 900, 580](docs/screenshots/offscreen-window-rescue-step-1-after-rescue.png)
 
 Window rules. One rule matches a test window by app and title. The window opened at 60, 60 and was 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set opacity to 80.
 
-![A test window called Rules demo window, placed by a window rule](images/rules-after.png)
+![A test window called Rules demo window. Its text says it opened at 60, 60, size 380 x 220, and measured 500, 300, size 560 x 340, opacity 80 percent](docs/screenshots/window-rules-demo-rule-result.png)
 
-Each mod's tutorial in the docs folder puts its screenshots in the steps they belong to. The window cycler, focus follows mouse, window rules, clipboard watchdog, restart logger and bulk copy guides have live captures from Windows 11 build 26300, with a numbered badge on each. The roll-up and rescue guides use the two older images on this page, which have no badge.
+Each mod's tutorial in the docs folder puts its screenshots in the steps they belong to. All eight guides have live captures from Windows 11 build 26300, with a numbered badge on each. The images on this page come from those guides.
 
 ## Questions and answers
 

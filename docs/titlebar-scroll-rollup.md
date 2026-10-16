@@ -1,6 +1,6 @@
 # Title Bar Scroll Roll-Up tutorial
 
-This guide sets up the Title Bar Scroll Roll-Up mod for Windhawk and walks you through one roll-up and back. When you're done, you can scroll the mouse wheel on a window's title bar to fold the window up to that bar, and scroll the other way to bring it back. It's for anyone who wants a window out of the way for a moment but doesn't want to minimize it or close it. KDE and older Linux desktops can roll a window up like this, and Windows doesn't have it at all. The two screenshots come from the roll-up test in the README's Status section, on a plain test window called Demo window.
+This guide sets up the Title Bar Scroll Roll-Up mod for Windhawk and walks you through one roll-up and back. When you're done, you can scroll the mouse wheel on a window's title bar to fold the window up to that bar, and scroll the other way to bring it back. It's for anyone who wants a window out of the way for a moment but doesn't want to minimize it or close it. KDE and older Linux desktops can roll a window up like this, and Windows doesn't have it at all. The two screenshots come from a live run on Windows 11 build 26300, on a plain test window called Demo window.
 
 ## Contents
 - [What it fixes](#what-it-fixes)
@@ -56,21 +56,21 @@ windhawk-cli.exe mod list
 The mod doesn't log anything when it works. If it can't install its mouse hook, it writes one line to the Windhawk log that begins with Could not install the mouse hook, followed by an error number. If it can't start its own thread, it writes nothing and tells Windhawk that it failed to load.
 
 ## Use it in four steps
-The two screenshots below are older captures from the README and carry no step badge. They belong to steps 1 and 2.
+The numbers match the red badge in the corner of each screenshot.
 
 ### 1. Put the pointer on an empty part of the title bar
 Open an ordinary window that isn't maximized, minimized or full screen. Rest the pointer on its title bar, away from the minimize, maximize and close buttons.
 
-![A test window called Demo window with all of its text in view, before the roll-up](../images/rollup-before.png)
+![A test window called Demo window with its two lines of text in view. A red box frames its title bar, and a red arrow points down at the spot where the pointer rested](screenshots/titlebar-scroll-rollup-step-1-before.png)
 
-The whole Demo window is in view, with its title bar and its two lines of text.
+The whole Demo window is in view, with its title bar and its two lines of text. The red arrow marks the spot on the title bar where the pointer rested. The pointer itself isn't in the capture.
 
 The gotcha is the title bar buttons. They don't report themselves as caption, so a scroll on them does nothing.
 
 ### 2. Scroll the wheel up
 Scroll up once. The window rolls up to its title bar.
 
-![The same test window after a scroll up on its title bar. The title bar is still there, and below it only the frame outline is left, with the backdrop showing through](../images/rollup-after.png)
+![The same test window after one scroll up on its title bar. The title bar is still there in the red box, and below it only the frame outline is left, with the backdrop showing through](screenshots/titlebar-scroll-rollup-step-2-after.png)
 
 The title bar stays and the content is gone. The frame outline is still there, and you can see the backdrop through it.
 
@@ -79,7 +79,7 @@ The gotcha is that the window keeps its real size. The mod clips it instead of r
 ### 3. Scroll the wheel down
 Keep the pointer on the title bar and scroll down. The window comes back as it was.
 
-No screenshot for this step. The test recorded that scroll down brought the window back, but no image of that moment was kept.
+No screenshot for this step. In the run behind steps 1 and 2, a scroll down took the roll-up off again, but no image of that moment was kept.
 
 The gotcha is a window the mod didn't roll up. A scroll down on it does nothing to the window and goes to the app as usual.
 
@@ -93,7 +93,9 @@ The gotcha is the size of the area the mod watches. It looks at the top 100 pixe
 ## The result and the settings behind it
 The test in the README's Status section ran on Windows 11 build 26300 with a single monitor, on plain test windows. Scroll up on the title bar rolled the window up. The frame outline stayed and the content was hidden. Scroll down brought it back.
 
-The record doesn't list the settings. Scroll up rolled the window up, and that's what the mod does with reverse off, which is the default. The defaults are enabled on, reverse off and modifier none.
+That record doesn't list the settings. Scroll up rolled the window up, and that's what the mod does with reverse off, which is the default. The defaults are enabled on, reverse off and modifier none.
+
+The screenshots in steps 1 and 2 come from a later run on 2026-10-16. The installed settings were enabled on, reverse off and modifier none, read with mod settings get. The pointer rested on the title bar, and the run sent one wheel step up through Windows' mouse_event call, not a physical wheel. The test window kept its spot and its size of 760 by 440. Windows reported a window region 760 pixels wide and 35 pixels tall, which is the title bar strip. One wheel step down removed that region again.
 
 ## Reverse and the hold key
 If you turn on Reverse the scroll direction, scroll down rolls up and scroll up brings the window back.
@@ -152,7 +154,7 @@ It works in one app and not in another. The second app probably draws its own ti
 A window stays rolled up and won't come back. You may have turned the roll-up off, or changed the modifier, after you rolled it up. Turn it back on, or hold the new modifier, and scroll down on the title bar. You can also disable the mod in Windhawk. That brings every rolled-up window back.
 
 ## What's tested and what isn't
-The README's Status section records a check of the roll-up on plain test windows, on Windows 11 build 26300 with a single monitor. Scroll up on the title bar rolled the window up, the frame outline stayed and the content was hidden. Scroll down brought it back. Steps 1 and 2 show that test.
+The README's Status section records a check of the roll-up on plain test windows, on Windows 11 build 26300 with a single monitor. Scroll up on the title bar rolled the window up, the frame outline stayed and the content was hidden. Scroll down brought it back. Steps 1 and 2 show a later run with the same result, and the result section above has its numbers.
 
 The repo doesn't record a test on real apps, on more than one monitor, with Reverse or a modifier key, of the taskbar thumbnail, or on Windows 10. Those follow from reading the code and the mod's notes.
 

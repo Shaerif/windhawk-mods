@@ -1,6 +1,6 @@
 # Window Rules tutorial
 
-This guide sets up the Window Rules mod for Windhawk and walks you through your first rule. When you're done, an app you pick opens at the same spot and size every time, and it can stay on top or be a little see-through if you ask for that. You write a rule for a program, and the mod applies it the first time each of that program's windows appears. The screenshot comes from a real test on Windows 11 build 26300 with one monitor. It used a plain test window from powershell.exe called Blank rule test.
+This guide sets up the Window Rules mod for Windhawk and walks you through your first rule. When you're done, an app you pick opens at the same spot and size every time, and it can stay on top or be a little see-through if you ask for that. You write a rule for a program, and the mod applies it the first time each of that program's windows appears. The screenshots come from real tests on Windows 11 build 26300 with one monitor. They used plain test windows from powershell.exe called Blank rule test and Rules demo window.
 
 ## Contents
 - [What it fixes](#what-it-fixes)
@@ -120,6 +120,14 @@ The test in step 1 checked version 0.1.1, which skips a blank rule and reads on.
 | opacity | 0 | 70 |
 
 The window ended up at 300, 200 with a size of 760 by 440 and an opacity of 70 percent, which is what rule 1 asked for. So rule 1 was applied even with a blank rule above it. The demos run also read the window back from Windows as layered with an alpha of 178, and 178 is 70 percent of 255 once the mod drops the fraction.
+
+A second run on 2026-10-16 used the rule that's installed on our test PC, read with mod settings get and left as it was. It's one rule for powershell.exe with the title Rules demo window, x 500, y 300, width 560, height 340 and opacity 80. Every other field is 0 or off. Its screenshot carries badge 1 too, because it shows step 1 with this rule.
+
+![A test window called Rules demo window. Its text says it opened at 60, 60, size 380 x 220, and below that, in a red box, measured now: position 500, 300, size 560 x 340, opacity 80 percent](screenshots/window-rules-demo-rule-result.png)
+
+The test window opened at 60, 60 with a size of 380 by 220. Once it was open, it read itself back from Windows and measured 500, 300, a size of 560 by 340 and opacity 80 percent. That's what the rule asks for.
+
+The run also read the window back as layered with an alpha of 204, and 204 is 80 percent of 255.
 
 ## The rule fields
 Each rule has ten fields. These are the exact keys from the mod's settings block. The block gives the rule fields no display names of their own.
