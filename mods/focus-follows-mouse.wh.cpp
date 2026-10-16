@@ -36,6 +36,28 @@ time Explorer starts.
   keeps its own values until you change a mod setting or reload it.
 - Windows decides which windows count. Menus and the taskbar behave as Windows
   decides.
+
+## Tutorial
+First open two windows that overlap a little, and click the one you want in
+front.
+
+1. Rest the pointer on the part of the back window you can see, with no click,
+   and type. The text goes into the back window, and the front window stays on
+   top.
+   ![Two overlapping test windows. Back window shows the words typed here inside a red box, and Front window still sits on top of its top right corner](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/focus-follows-mouse-step-1-typing-into-back-window.png)
+2. Set Hover delay (milliseconds) to a value from 0 to 5000. The default is 300.
+3. Turn on Bring the window to the front when it gets focus if you want the
+   hovered window to come to the front too.
+
+### Gotchas
+- Step 1: Focus moves only after the pointer has rested for the delay, so keys
+  you type sooner should still go to the old window. That comes from the code,
+  and no test has checked it.
+- Step 2: A value below 0 counts as 0, and a value above 5000 counts as 5000.
+- Step 3: With it on, the window you hover covers the one you were reading.
+
+Read the full guide in
+[docs/focus-follows-mouse.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/focus-follows-mouse.md).
 */
 // ==/WindhawkModReadme==
 

@@ -28,6 +28,29 @@ shows. The app doesn't notice, so apps with a minimum size still work.
 - Windows that run as administrator can't be changed from Explorer. They are
   skipped.
 - All rolled-up windows come back when you unload the mod.
+
+## Tutorial
+1. Open a window that isn't maximized, minimized or full screen. Rest the
+   pointer on an empty part of its title bar.
+   ![A test window called Demo window with its two lines of text in view. A red box frames its title bar, and a red arrow points down at the spot where the pointer rested](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/titlebar-scroll-rollup-step-1-before.png)
+2. Scroll the wheel up once. The window rolls up to its title bar.
+   ![The same test window after one scroll up on its title bar. The title bar is still there in the red box, and below it only the frame outline is left, with the backdrop showing through](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/titlebar-scroll-rollup-step-2-after.png)
+3. Keep the pointer on the title bar and scroll down. The window comes back.
+4. Scroll in the body of the window. Nothing changes, and the app gets the
+   scroll as usual.
+
+### Gotchas
+- Step 1: The minimize, maximize and close buttons don't count as title bar. A
+  scroll on them does nothing.
+- Step 2: The window keeps its real size. The mod clips it, so the frame
+  outline you see is the full window.
+- Step 3: A scroll down on a window the mod didn't roll up goes to the app as
+  usual.
+- Step 4: The mod only watches the top 100 pixels of the window, scaled for its
+  DPI. A point lower down never counts.
+
+Read the full guide in
+[docs/titlebar-scroll-rollup.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/titlebar-scroll-rollup.md).
 */
 // ==/WindhawkModReadme==
 

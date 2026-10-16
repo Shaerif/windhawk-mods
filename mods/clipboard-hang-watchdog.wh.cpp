@@ -43,6 +43,31 @@ accept that. Programs on the protected list are never ended.
 - Seconds before the holding program is ended (action 2 only).
 - Log size limit: when the log passes this size it moves to a .old file and a new log starts. Set 0 to keep everything.
 - Protected programs: names, separated by commas, that are never ended.
+
+## Tutorial
+1. Open `%LOCALAPPDATA%\clipboard-hang-watchdog.log` in a text editor.
+   ![The watchdog log file in a plain text window, with four HELD OPEN lines, each one followed by a Clipboard released line, and then six Watchdog started lines](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/clipboard-hang-watchdog-step-1-log-file.png)
+2. When copy and paste stop working, wait a few seconds. Then find the newest
+   HELD OPEN or OWNER NOT RESPONDING line. It names the program, its process ID
+   and its window title.
+3. Once the hang clears, look for Clipboard released after, or Clipboard owner
+   responding again.
+4. If you accept the risk, set Action to Log and end the holding program. A
+   program that holds the clipboard open for 15 seconds then gets ended, unless
+   it's on the protected list.
+
+### Gotchas
+- Step 1: The mod writes its first line as soon as it loads. A missing file
+  usually means it isn't running.
+- Step 2: A program that opened the clipboard with no window isn't logged, and
+  the mod can't name it.
+- Step 3: HELD OPEN gives the time of the report, 5 seconds by default. The
+  released line gives the full length of the hold.
+- Step 4: An ended program loses its unsaved work. That's why this is off by
+  default.
+
+Read the full guide in
+[docs/clipboard-hang-watchdog.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/clipboard-hang-watchdog.md).
 */
 // ==/WindhawkModReadme==
 

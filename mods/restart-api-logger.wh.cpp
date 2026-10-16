@@ -59,6 +59,33 @@ is capped at 256 KB. When it gets bigger, the mod drops the oldest lines.
 - Log detail: basic logs the process, API, reason and flags. Detailed logs
   everything.
 - Also write a log file: turns the ProgramData file on or off.
+
+## Tutorial
+1. Open `%ProgramData%\restart-api-logger.log` and find the INIT line for each
+   program.
+   ![The restart logger log file in a plain text window with two INIT lines, both from MoUsoCoreWorker.exe, each listing nine hooked APIs, skipped=[none] and the log file path](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/restart-api-logger-step-1-log-file.png)
+2. Leave the mod on until Windows Update restarts your PC. Nothing shows on
+   screen while it waits.
+3. After the restart, open the file again and find the CALL lines. Each one
+   names the API, the program, the reason code and flags in hex, and the module
+   that made the call.
+4. Check the line right after each CALL line for a RETURN line with the result.
+
+Our test log has no restart in it yet, so steps 2 to 4 come from the code.
+
+### Gotchas
+- Step 1: No INIT line for a program means Windhawk didn't load the mod into it.
+  On our test PC it loaded into both.
+- Step 2: You get a new INIT line each time Windhawk loads the mod into a new
+  copy of either program. Our file held 64 of them by the evening of October
+  16, 2026.
+- Step 3: With Also write a log file in ProgramData off, the CALL line went to
+  the Windhawk log only, and a restart can cut that log off.
+- Step 4: A missing RETURN line isn't a failure. A restart can end the program
+  first, and the CALL line is already on disk by then.
+
+Read the full guide in
+[docs/restart-api-logger.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/restart-api-logger.md).
 */
 // ==/WindhawkModReadme==
 

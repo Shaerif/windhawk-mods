@@ -39,6 +39,27 @@ File Explorer and core system processes are excluded for stability. Add more
 - Minimum visible share: the window is moved when less than this percent of its
   area is on screen.
 - Log moves: write a line to the Windhawk log each time a window is moved.
+
+## Tutorial
+1. Start the program whose window lands off screen. With the default Minimum
+   visible share of 50, the mod moves the window to the center of the work area
+   if less than half of it is there.
+   ![The whole 2560 by 1600 screen, blank except for one test window in the middle in a red box. Its title says opened at x = -3000, now at 900, 580. Its text says it opened at -3000, 300, size 760 x 440, and measured now: position 900, 580, size 760 x 440, screen 2560 x 1600](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/offscreen-window-rescue-step-1-after-rescue.png)
+2. Look in the Windhawk log for a line like
+   `[ShowWindow] moved <window handle> from (left,top,right,bottom) visible=N% to (x,y)`.
+3. Drag the window partly off the edge if you like. The mod has already checked
+   it, so it stays there.
+
+### Gotchas
+- Step 1: The mod checks a window only when it first appears. A window that was
+  off screen before you installed the mod stays there until you close the
+  program and start it again.
+- Step 2: The line shows up only while Log moves is on.
+- Step 3: A program that hides its window and shows it again doesn't get a
+  second check.
+
+Read the full guide in
+[docs/offscreen-window-rescue.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/offscreen-window-rescue.md).
 */
 // ==/WindhawkModReadme==
 

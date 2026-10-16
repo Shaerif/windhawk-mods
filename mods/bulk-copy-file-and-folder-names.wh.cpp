@@ -49,6 +49,31 @@ Shift+right-click. You can turn them off in the settings.
 - Items that aren't files or folders, like drives in This PC, give their
   internal name.
 - If nothing is selected, nothing happens.
+
+## Tutorial
+1. Select the files and folders in a File Explorer window. A mix of both is
+   fine.
+   ![A File Explorer window with two folders and five files selected in the demo-names folder](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-1-select.png)
+2. Keep that window in front, press Ctrl+Shift+N and paste. You get every name
+   with its extension, one per line.
+   ![The selected names pasted into a text window, one per line, with their extensions](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-2-names-with-extensions.png)
+3. Press Ctrl+Alt+Shift+N with the same selection and paste again. Files lose
+   their extension and folders keep their full name.
+   ![The same names pasted again without extensions, while the folder Backup.2025 keeps its full name](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-3-names-without-extensions.png)
+4. Or hold Shift and right-click the selection, and pick Copy name or Copy name
+   without extension.
+   ![The classic right-click menu for the selection, with Copy name and Copy name without extension above Properties](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-4-right-click-menu.png)
+
+### Gotchas
+- Step 2: Ctrl+Shift+N doesn't make new folders while the mod is on. Move the
+  copy key in the settings if you use New folder from the keyboard.
+- Step 3: Only the last extension goes, so `archive.tar.gz` becomes
+  `archive.tar`.
+- Step 4: The compact Windows 11 menu can't show the entries. Use
+  Shift+right-click or Show more options.
+
+Read the full guide in
+[docs/bulk-copy-file-and-folder-names.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/bulk-copy-file-and-folder-names.md).
 */
 // ==/WindhawkModReadme==
 

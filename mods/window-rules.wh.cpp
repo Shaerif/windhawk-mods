@@ -54,6 +54,36 @@ place a window off screen.
 - Windows that set their own transparency keep it. The opacity field skips them.
 - File Explorer and core system processes are excluded for stability.
 - Windows that run as administrator can't be changed by a normal process.
+
+## Tutorial
+Write your first rule in the mod's Settings tab.
+
+1. Open the mod's settings in Windhawk.
+2. Under Rules, fill in the blank rule or add a new one below it.
+3. Type the program file name in process, for example `notepad.exe`.
+4. Fill in the fields you want and leave the rest at 0 or off.
+5. Save the settings.
+
+Then use it in three steps.
+
+1. Close the app if it's open, and start it again. The rule applies when the
+   new window first shows.
+   ![A test window called Blank rule test. Its text says it opened at 60, 60, size 380 x 220, and below that, in a red box, measured now: position 300, 200, size 760 x 440, opacity 70 percent](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/window-rules-step-1-rule-below-blank-rule.png)
+   ![A test window called Rules demo window. Its text says it opened at 60, 60, size 380 x 220, and below that, in a red box, measured now: position 500, 300, size 560 x 340, opacity 80 percent](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/window-rules-demo-rule-result.png)
+2. With Log applied rules on, look in the Windhawk log for
+   `[ShowWindow] applied a rule to window`, with the window handle at the end.
+3. Change a field and save. Then close the app and start it again.
+
+### Gotchas
+- Rule setup: process has to be the file name with .exe at the end. A
+  folder path won't match, and neither will the name the Start menu shows.
+- Step 1: A window that was open before you saved doesn't move.
+- Step 2: The line says a rule matched. It doesn't say anything changed.
+- Step 3: The mod checks each window once. A window you move by hand stays
+  there until you close and reopen it.
+
+Read the full guide in
+[docs/window-rules.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/window-rules.md).
 */
 // ==/WindhawkModReadme==
 

@@ -33,6 +33,31 @@ You can change the modifier in the settings.
 - Store apps share one frame host, so they all look like the same app. The mod
   skips them.
 - A window that runs as administrator can't be switched to from Explorer.
+
+## Tutorial
+The ` key is the one above Tab on a US keyboard.
+
+1. Open two or more windows of one program and click one so it's in front.
+   ![Three overlapping test windows. Window A is in front with its title bar active, Window B sits behind it and Window C is at the back](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/same-app-window-cycler-step-1-window-a-in-front.png)
+2. Press Alt+` once. The window furthest back comes to the front.
+   ![The same three windows after one press. Window C is now in front, and Window A's title text has turned gray](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/same-app-window-cycler-step-2-first-press-window-c.png)
+3. Press Alt+` again. The window that's now furthest back comes to the front.
+   ![The same three windows after a second press, with Window B now in front](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/same-app-window-cycler-step-3-second-press-window-b.png)
+4. Press Alt+Shift+` to go the other way.
+
+### Gotchas
+- Step 1: A window with no taskbar button may have a hidden owner window. The
+  mod skips any window that has an owner.
+- Step 2: If you hold the keys down, the switch doesn't repeat. You get one
+  switch per press.
+- Step 3: If the app has only one window that counts, nothing happens and the
+  log stays quiet.
+- Step 4: With three or more windows, the code always brings the second window
+  in the stack to the front. So more presses flip between the same two windows.
+  No test covers this step.
+
+Read the full guide in
+[docs/same-app-window-cycler.md](https://github.com/Shaerif/windhawk-mods/blob/main/docs/same-app-window-cycler.md).
 */
 // ==/WindhawkModReadme==
 
