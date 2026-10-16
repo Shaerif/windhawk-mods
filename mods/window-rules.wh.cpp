@@ -2,7 +2,7 @@
 // @id              window-rules
 // @name            Window Rules
 // @description     Give any app a set position, size, monitor, always-on-top flag or transparency when its window opens
-// @version         0.1.0
+// @version         0.1.1
 // @author          Shaerif
 // @include         *
 // @exclude         explorer.exe
@@ -121,23 +121,37 @@ static void LoadSettings() {
     std::vector<Rule> rules;
     g_enabled = Wh_GetIntSetting(L"enabled") != 0;
     g_log = Wh_GetIntSetting(L"logRules") != 0;
-    for (int i = 0; i < 200; i++) {
+    // Windhawk has no array length call. A missing index reads as an empty
+    // string and zeros, the same as a blank rule. Skip blank rules and stop
+    // after a run of them in a row, which marks the end of the list.
+    const int kMaxRules = 200;
+    const int kBlankRunToStop = 10;
+    int blankRun = 0;
+    for (int i = 0; i < kMaxRules; i++) {
         PCWSTR proc = Wh_GetStringSetting(L"rules[%d].process", i);
         bool empty = !proc || !*proc;
         std::wstring procLower = empty ? L"" : Lower(proc);
         Wh_FreeStringSetting(proc);
         if (empty) {
-            // Rules can have blank process names in the middle. Stop only at the end of the list.
+            // A rule with no process does nothing. Skip it, blank or not.
             PCWSTR probe = Wh_GetStringSetting(L"rules[%d].title", i);
-            bool missing = !probe || !*probe;
+            bool blank = !probe || !*probe;
             Wh_FreeStringSetting(probe);
-            if (missing && Wh_GetIntSetting(L"rules[%d].monitor", i) == 0 &&
+            if (blank && Wh_GetIntSetting(L"rules[%d].monitor", i) == 0 &&
+                Wh_GetIntSetting(L"rules[%d].x", i) == 0 &&
+                Wh_GetIntSetting(L"rules[%d].y", i) == 0 &&
                 Wh_GetIntSetting(L"rules[%d].width", i) == 0 &&
+                Wh_GetIntSetting(L"rules[%d].height", i) == 0 &&
+                Wh_GetIntSetting(L"rules[%d].maximize", i) == 0 &&
+                Wh_GetIntSetting(L"rules[%d].alwaysOnTop", i) == 0 &&
                 Wh_GetIntSetting(L"rules[%d].opacity", i) == 0) {
-                break;
+                if (++blankRun >= kBlankRunToStop) break;
+            } else {
+                blankRun = 0;
             }
             continue;
         }
+        blankRun = 0;
         if (procLower != g_exeName) continue;
         Rule r;
         PCWSTR title = Wh_GetStringSetting(L"rules[%d].title", i);
