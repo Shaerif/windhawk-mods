@@ -165,7 +165,7 @@ windhawk-cli.exe mod disable local@focus-follows-mouse --yes
 windhawk-cli.exe mod remove local@focus-follows-mouse --yes
 ```
 
-When the mod unloads, it writes the saved Windows values back and logs Restored original hover focus settings.
+When the mod unloads, it writes the saved Windows values back and logs Restored original hover focus settings. That only happens if it saved them, which it does the first time it applies its values with Focus the window under the mouse on.
 
 ## Use at your own risk
 This mod comes with no warranty of any kind, and you use it at your own risk. The author isn't liable for any damage, data loss, crash, or other harm it causes. The full terms are in the [LICENSE](../LICENSE) file.
