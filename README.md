@@ -5,7 +5,7 @@ A set of eight custom [Windhawk](https://windhawk.net) mods for Windows 11. Seve
 We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
 
 ## Documentation
-Each mod has its own guide in the docs folder. The [docs index](docs/README.md) lists all of them.
+Each mod has its own step-by-step tutorial in the docs folder. The [docs index](docs/README.md) lists all of them.
 
 ## Contents
 - [Quick summary](#quick-summary)
@@ -42,129 +42,65 @@ We follow three rules when we write a mod:
 The first mod in this repo came from a real problem. A Windows installer opened its window outside the visible area and wouldn't come back. That's why the rescue mod exists, and why it checks each window once instead of fighting you every time you drag one near an edge.
 
 ## The mods
+Each mod has a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
 
 ### Off-Screen Window Rescue
-Off-Screen Window Rescue is a Windhawk mod for Windows 11 that moves windows back onto your screen when they open outside the visible area.
+Some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. When a normal window first appears and less than half of it is visible, with the default setting, this mod moves it to the center of the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
 
-Problem: some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. The window is running, but you can't see it or grab it.
+Settings: minVisiblePercent (default 50) and logMoves (default on). It skips File Explorer and core system processes.
 
-What it does: when a normal window first appears, the mod checks how much of it is visible. If less than the limit you set is on screen, it moves the window back into the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
-
-Settings:
-- minVisiblePercent (default 50): how much of the window must be visible before we leave it alone.
-- logMoves (default on): writes each move to the Windhawk log.
-
-Limits: it skips File Explorer and core system processes (csrss.exe, dwm.exe, winlogon.exe, LogonUI.exe, fontdrvhost.exe, sihost.exe, ShellHost.exe). You can add more @exclude lines in the Source code tab for any program you want to skip.
+Full guide: [Off-Screen Window Rescue tutorial](docs/offscreen-window-rescue.md).
 
 ### Same-App Window Cycler
-Same-App Window Cycler is a Windhawk mod that adds a shortcut to Windows 11 for switching between windows of the same app. You press Alt plus the backtick key, the key above Tab on a US keyboard.
+Alt+Tab shows every window from every app. Press Alt plus the backtick key, the key above Tab on a US keyboard, and this mod moves between the windows of the app you're using, like Cmd plus the backtick key on a Mac.
 
-Problem: Alt+Tab shows every window from every app. If you have six browser windows and a code editor, getting to the right browser window takes several presses.
+Settings: modifier (default Alt), includeMinimized (default on) and currentDesktopOnly (default on).
 
-What it does: press Alt plus the backtick key to move between the windows of the app you're using, like Cmd plus the backtick key on a Mac.
-
-Settings:
-- modifier (default Alt): Alt, Ctrl+Alt, or Win.
-- includeMinimized (default on): minimized windows are part of the cycle.
-- currentDesktopOnly (default on): only windows on the current virtual desktop.
+Full guide: [Same-App Window Cycler tutorial](docs/same-app-window-cycler.md).
 
 ### Focus Follows Mouse
-Focus Follows Mouse is a Windhawk mod that gives keyboard focus to the window under your pointer on Windows 11, with no click.
+On Windows, the window under your pointer doesn't get keyboard focus until you click it. This mod focuses the window under the mouse after a short delay. By default it doesn't raise the window, so a window you're reading stays on top while you type in the one underneath.
 
-Problem: on Windows, the window under your pointer doesn't get keyboard focus until you click it. Many Linux desktops don't work that way.
+Settings: enabled (default on), delayMs (default 300) and raiseWindow (default off).
 
-What it does: focuses the window under the mouse after a short delay. By default it doesn't raise the window, so a window you're reading stays on top while you type in the one underneath.
-
-Settings:
-- enabled (default on).
-- delayMs (default 300): how long the pointer must rest on a window before focus moves.
-- raiseWindow (default off): also bring the window to the front.
+Full guide: [Focus Follows Mouse tutorial](docs/focus-follows-mouse.md).
 
 ### Title Bar Scroll Roll-Up
-Title Bar Scroll Roll-Up is a Windhawk mod that folds a Windows 11 window up to its title bar when you scroll the mouse wheel on it.
+Scroll the mouse wheel up on a title bar and the window rolls up to its title bar. Scroll down and it comes back. The frame outline stays and the content is hidden, so the window keeps its place without being minimized or closed.
 
-Problem: you want a window out of the way for a moment, but not minimized and not closed.
+Settings: enabled (default on), reverse (default off) and modifier (default none).
 
-What it does: scroll the mouse wheel on a title bar and the window rolls up to its title bar. Scroll the other way and it comes back. The frame outline stays and the content is hidden.
-
-Settings:
-- enabled (default on).
-- reverse (default off): swap the scroll directions.
-- modifier (default none): require Ctrl, Shift, or Alt while you scroll.
+Full guide: [Title Bar Scroll Roll-Up tutorial](docs/titlebar-scroll-rollup.md).
 
 ### Window Rules
-Window Rules is a Windhawk mod that sets position, size, monitor, always-on-top, and opacity for specific apps when their windows open.
+Some apps open in a different place and size every time, and Windows has no built-in way to pin them. You write a rule for an app, and this mod applies it when that app's window first opens. A rule can set position, size, monitor, maximize, always-on-top and opacity.
 
-Problem: some apps open in a different place and size every time, and Windows has no built-in way to pin them. KDE has had per-app window rules for a long time.
+Settings: enabled and logRules, both on by default, and a list of rules. Each rule needs a process name like notepad.exe. It skips File Explorer and the same core system processes as the rescue mod.
 
-What it does: you write a rule for an app and the mod applies it when that app's window opens. A rule can set position, size, monitor, maximize, always-on-top, and opacity.
-
-Rule fields:
-- process: the program file name, for example notepad.exe. Required.
-- title: optional, narrows the rule to windows with a matching title.
-- monitor: 1 for the first monitor, 2 for the second, and so on. 0 keeps the current monitor.
-- x, y, width, height: 0 leaves the value alone.
-- maximize and alwaysOnTop: on or off.
-- opacity: 10 to 100 percent. 0 leaves it alone.
-
-Other settings: enabled and logRules, both on by default.
-
-Limits: it skips File Explorer and the same core system processes as the rescue mod.
+Full guide: [Window Rules tutorial](docs/window-rules.md).
 
 ### Clipboard Hang Watchdog
-Clipboard Hang Watchdog is a Windhawk mod that finds which program is blocking the Windows 11 clipboard and writes it to a log.
+Copy and paste stop working, sometimes for many seconds, and Windows doesn't tell you which program is responsible. This mod checks the clipboard every 500 ms. When a program holds it open past your threshold, or the clipboard owner stops responding, it writes the program name and process ID to %LOCALAPPDATA%\clipboard-hang-watchdog.log. It starts in log-only mode. In endHolder mode it can also end the holder.
 
-Problem: copy and paste stop working, sometimes for many seconds, and Windows doesn't tell you which program is responsible.
+Settings: thresholdSeconds (default 5), action (default logOnly), killAfterSeconds (default 15), maxLogKB (default 100) and protectedProcesses.
 
-What it does: a background thread checks the clipboard every 500 ms. If a program holds the clipboard open longer than your threshold, or the clipboard owner stops responding, the mod writes the program name and process ID to a log. In endHolder mode it can also end that program once the hold passes the kill limit.
-
-Settings:
-- thresholdSeconds (default 5): how long a hold counts as a hang.
-- action (default logOnly): logOnly or endHolder.
-- killAfterSeconds (default 15): in endHolder mode, how long we wait before ending the program.
-- maxLogKB (default 100, 0 means no limit): when the log passes this size, it's renamed to .old and a fresh log starts.
-- protectedProcesses: programs the mod never ends. The default list is explorer.exe, dwm.exe, csrss.exe, winlogon.exe, svchost.exe, sihost.exe, services.exe, lsass.exe.
-
-The log lives at %LOCALAPPDATA%\clipboard-hang-watchdog.log and uses 12-hour timestamps.
-
-Limits: it finds a holder only if that program opened the clipboard with a window handle, or if it owns delayed-render data and has stopped responding. Windows waits up to 30 seconds for delayed rendering. A hang inside the Clipboard User Service (cbdhsvc) is a separate cause, and this mod can't see it.
+Full guide: [Clipboard Hang Watchdog tutorial](docs/clipboard-hang-watchdog.md).
 
 ### Bulk Copy File and Folder Names
-Bulk Copy File and Folder Names is a Windhawk mod that copies the names of the files and folders you select in File Explorer, without their paths. It works on one item or on many at once, and a selection can mix files and folders.
+Copy as path (Ctrl+Shift+C) gives you full paths in quotes. Select one or more files and folders in File Explorer and press Ctrl+Shift+N, and this mod copies only their names, one per line. Ctrl+Alt+Shift+N copies them without extensions, and folders keep their full name. The classic right-click menu gets Copy name and Copy name without extension too. Ctrl+Shift+N is also File Explorer's New folder key, and the mod takes it over while it's on.
 
-Problem: Windows 11 has Copy as path (Ctrl+Shift+C), but it gives you full paths in quotes. If you only want the names, you have to trim each one by hand, and that's slow when there are dozens.
-
-What it does: select one or more files and folders in File Explorer and press Ctrl+Shift+N. The names go to the clipboard as plain text, one per line. Press Ctrl+Alt+Shift+N to copy them without extensions. Folders keep their full name, so sub.folder stays sub.folder. a.tar.gz becomes a.tar, and a dotfile like .gitignore stays whole. The keys only work while a File Explorer window is in front, so other apps keep their own shortcuts.
-
-You can also right-click a file, a folder, or a selection of many files and folders. The menu gets two entries, Copy name and Copy name without extension. They follow the same rules and settings as the keys. On Windows 11 they're in the classic menu, the one you get from Show more options or Shift+right-click. They don't show on empty space, on column headers, on the desktop, or in other apps.
-
-Settings:
-- withExtModifier (default Ctrl+Shift) and withExtKey (default N): the keys for names with extensions.
-- noExtModifier (default Ctrl+Alt+Shift) and noExtKey (default N): the keys for names without extensions. A key can be a letter, a digit, or F1 to F24.
-- separator (default newline): newline, comma, or space. A comma is followed by a space.
-- quoteNames (default off): put each name in double quotes.
-- contextMenu (default on): show the two right-click menu entries. The keys work either way.
-
-Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys and menu entries don't work on the desktop or in Open and Save dialogs. The Windows 11 compact menu can't take new entries from a mod. The menu labels are in English. Items that aren't files or folders, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
+Settings: withExtModifier and withExtKey (default Ctrl+Shift and N), noExtModifier and noExtKey (default Ctrl+Alt+Shift and N), separator (default newline), quoteNames (default off) and contextMenu (default on).
 
 ![The classic right-click menu in File Explorer with Copy name and Copy name without extension above Properties](docs/screenshots/bulk-copy-step-4-right-click-menu.png)
 
-The full guide, with a screenshot for each step, is the [Bulk Copy File and Folder Names tutorial](docs/bulk-copy-file-and-folder-names.md).
+Full guide: [Bulk Copy File and Folder Names tutorial](docs/bulk-copy-file-and-folder-names.md).
 
 ### Restart API Logger
-Restart API Logger is a Windhawk mod that records which Windows API call Windows Update uses to restart your PC, and which code made that call.
+Windows Update sometimes restarts the PC on its own, and the event log doesn't say which API call it used. This mod loads into MoUsoCoreWorker.exe and TrustedInstaller.exe, hooks nine shutdown and restart APIs, and writes a CALL line for each call before it passes the call on. Version 1 only logs. It doesn't block, delay or change any call.
 
-Problem: Windows Update sometimes restarts the PC on its own. The Windows event log tells you which program asked for the restart, but it doesn't tell you which API call was used.
+Settings: logLevel (default detailed) and fileLog (default on), which also writes to %ProgramData%\restart-api-logger.log.
 
-What it does: the mod loads into the two Windows Update programs, MoUsoCoreWorker.exe and TrustedInstaller.exe. It hooks nine shutdown and restart APIs, among them ExitWindowsEx, InitiateShutdownW and NtShutdownSystem. For each call it writes a CALL line with the API name, the reason code and flags in hex, and the module that made the call. It writes that line before it passes the call on, and it writes a RETURN line if the program is still alive when the call comes back. Version 1 only logs. It doesn't block, delay or change any call.
-
-Settings:
-- logLevel (default detailed): basic or detailed. Detailed adds the full program path, the process and thread IDs, every argument, the return address, and the caller module with its offset.
-- fileLog (default on): also appends each line to %ProgramData%\restart-api-logger.log, because a restart can end the program before the Windhawk log is saved.
-
-Limits: it only sees calls from those two programs, and only the nine APIs it hooks. Windhawk protects some system processes. On our test PC it did load the mod into both. The log file is capped at 256 KB, and the oldest lines are dropped past that.
-
-The full guide is the [Restart API Logger doc](docs/restart-api-logger.md).
+Full guide: [Restart API Logger tutorial](docs/restart-api-logger.md).
 
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
@@ -200,9 +136,9 @@ Off-screen rescue. We opened a test window at x = -3000. The mod moved it to x =
 
 Window rules. One rule matches a test window by app and title. The window opened at 60, 60 and was 380 by 220. The rule moved it to 500, 300, made it 560 by 340 and set opacity to 80.
 
-![A test window placed and made translucent by a window rule](images/rules-after.png)
+![A test window called Rules demo window, placed by a window rule](images/rules-after.png)
 
-The window cycler, focus follows mouse, clipboard watchdog and restart logger have no screenshots because a still image can't show them.
+Each mod's tutorial in the docs folder puts its screenshots in the steps they belong to. The window cycler, focus follows mouse, window rules, clipboard watchdog, restart logger and bulk copy guides have live captures from Windows 11 build 26300, with a numbered badge on each. The roll-up and rescue guides use the two older images on this page, which have no badge.
 
 ## Questions and answers
 
