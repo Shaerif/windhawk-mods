@@ -31,7 +31,7 @@ accept that. Programs on the protected list are never ended.
 
 ## Limits
 - Windows reports the holder only when it opened the clipboard with a window
-  handle. A program that opened it with no window shows up as unknown, and the
+  handle. A program that opened it with no window isn't logged at all, and the
   mod can't name it.
 - If the Windows Clipboard User Service is stuck, this mod can't see it. The
   signs are a frozen Win+V history and new copies not appearing. Sign out and
