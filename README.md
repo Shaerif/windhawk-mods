@@ -4,6 +4,9 @@ A small set of custom [Windhawk](https://windhawk.net) mods for Windows 11. Each
 
 We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
 
+## Documentation
+Each mod has its own guide in the docs folder. The [docs index](docs/README.md) lists all of them.
+
 ## Contents
 - [Quick summary](#quick-summary)
 - [Why we build these mods](#why-we-build-these-mods)
@@ -142,6 +145,10 @@ Settings:
 - `contextMenu` (default on): show the two right-click menu entries. The keys work either way.
 
 Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys and menu entries don't work on the desktop or in Open and Save dialogs. The Windows 11 compact menu can't take new entries from a mod. Windows only lets apps with a registered package add to it. The menu labels are in English. Items that aren't files or folders, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
+
+![The classic right-click menu in File Explorer with Copy name and Copy name without extension above Properties](docs/screenshots/bulk-copy-step-4-right-click-menu.png)
+
+The full guide, with a screenshot for each step, is the [Bulk Copy File and Folder Names tutorial](docs/bulk-copy-file-and-folder-names.md).
 
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
