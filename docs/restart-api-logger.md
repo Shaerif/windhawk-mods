@@ -84,14 +84,20 @@ No screenshot for this step. There's nothing to see while the mod waits.
 The gotcha is the number of INIT lines. Each time Windhawk loads the mod into a new copy of one of the two programs, it writes a new INIT line. The two lines in step 1 have different process IDs, 64700 and 74396, and the file on our test PC holds 60 of them.
 
 ### 3. Read the CALL line after the restart
-Once the PC is back up, open the log file again. A restart can end the program before the Windhawk log is saved, so the file is the place to look. Find the CALL lines. Each one names the API that was called, the program that called it, the reason code and flags in hex, and the module that made the call.
+Once the PC is back up, open the log file again. A restart can end the program before the Windhawk log is saved, so the file is the place to look. Find the CALL lines. Each one names the API that was called, the program that called it, the reason code and flags in hex, and the module that made the call. In detailed mode, the code builds the line in this shape, with the parts in angle brackets filled in.
+
+```
+CALL <API> proc=<program path> pid=<id> tid=<id> reason=0x<hex> (<reason parts>) flags=0x<hex> args={<arguments>} ret_addr=<address> caller=<module>+0x<offset>
+```
+
+In basic mode the line keeps the API, proc with the file name only, reason, flags and caller=<module>, and leaves out the rest.
 
 No screenshot for this step. The log on our test PC has no CALL line yet, because no restart has been logged.
 
 The gotcha is the setting for the file. If Also write a log file in ProgramData is off, the CALL line only went to the Windhawk log, and a restart can cut that off.
 
 ### 4. Look for a RETURN line
-Check the line right after each CALL line. A RETURN line with the result is there only if the program was still alive when the call came back.
+Check the line right after each CALL line. A RETURN line with the result is there only if the program was still alive when the call came back. In detailed mode it reads RETURN, the API, pid=, tid=, result=0x and a short note like (TRUE) or (NTSTATUS). In basic mode it's only RETURN, the API and result=0x.
 
 No screenshot for this step, for the same reason as step 3.
 
