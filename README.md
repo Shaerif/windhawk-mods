@@ -131,13 +131,16 @@ Problem: Windows 11 has Copy as path (Ctrl+Shift+C), but it gives you full paths
 
 What it does: select files in File Explorer and press Ctrl+Shift+N. The names go to the clipboard as plain text, one per line. Press Ctrl+Alt+Shift+N to copy them without extensions. Folders keep their full name. `a.tar.gz` becomes `a.tar`, and a dotfile like `.gitignore` stays whole. The keys only work while a File Explorer window is in front, so other apps keep their own shortcuts.
 
+You can also right-click a file, a folder, or a whole selection. The menu gets two entries, Copy name and Copy name without extension. They follow the same rules and settings as the keys. On Windows 11 they're in the classic menu, the one you get from Show more options or Shift+right-click. They don't show on empty space, on the desktop, or in other apps.
+
 Settings:
 - `withExtModifier` (default Ctrl+Shift) and `withExtKey` (default N): the keys for names with extensions.
 - `noExtModifier` (default Ctrl+Alt+Shift) and `noExtKey` (default N): the keys for names without extensions. A key can be a letter, a digit, or F1 to F24.
 - `separator` (default `newline`): `newline`, `comma`, or `space`. A comma is followed by a space.
 - `quoteNames` (default off): put each name in double quotes.
+- `contextMenu` (default on): show the two right-click menu entries. The keys work either way.
 
-Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys don't work on the desktop or in Open and Save dialogs. Items that aren't files, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
+Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys and menu entries don't work on the desktop or in Open and Save dialogs. The Windows 11 compact menu can't take new entries from a mod. Windows only lets apps with a registered package add to it. The entries only show when the menu has a default action, like Open. The menu labels are in English. Items that aren't files, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
 
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
@@ -198,7 +201,7 @@ Install Window Rules and add a rule with the program file name, for example `not
 Install Title Bar Scroll Roll-Up and scroll the mouse wheel on a window's title bar. The window rolls up to its title bar. Scroll the other way and it comes back.
 
 ### How do I copy only the file names in File Explorer?
-Install Copy File Names, select the files, and press Ctrl+Shift+N. You get the names with their extensions, one per line, ready to paste. Ctrl+Alt+Shift+N copies them without extensions.
+Install Copy File Names, select the files, and press Ctrl+Shift+N. You get the names with their extensions, one per line, ready to paste. Ctrl+Alt+Shift+N copies them without extensions. You can also right-click the selection and pick Copy name.
 
 ### Is it safe to run these mods?
 Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
@@ -240,7 +243,7 @@ That points at the Clipboard User Service (cbdhsvc) or a holder the mod can't se
 | titlebar-scroll-rollup | 0.1.0 | explorer.exe | enabled, reverse, modifier |
 | window-rules | 0.1.0 | all apps except listed excludes | enabled, logRules, rules |
 | clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
-| copy-file-names | 0.1.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames |
+| copy-file-names | 0.2.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 
 ## Status
 Tested on Windows 11 build 26300 with a single monitor. We checked the roll-up, the rescue mod, and window rules on plain test windows (see the screenshots). For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet. The clipboard watchdog was tested for hold detection and for ending a holder, and the log trim, which moves an over-limit log to a `.old` file, passed a test with an 8-run overflow. We have no recorded live test for the window cycler, focus follows mouse, or copy file names.

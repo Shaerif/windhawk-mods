@@ -1,8 +1,8 @@
 // ==WindhawkMod==
 // @id              copy-file-names
 // @name            Copy File Names
-// @description     Press Ctrl+Shift+N in File Explorer to copy the names of the selected files, not the files
-// @version         0.1.0
+// @description     Copy the names of the selected files in File Explorer, not the paths, with a hotkey or the right-click menu
+// @version         0.2.0
 // @author          Shaerif
 // @include         explorer.exe
 // @compilerOptions -luser32 -lole32 -loleaut32 -luuid
@@ -24,15 +24,26 @@ folders as plain text, one per line.
 The keys only work while a File Explorer window is in front. You can change both
 keys in the settings.
 
+## Right-click menu
+Right-click a file, a folder, or a selection in a File Explorer window. The
+classic menu gets two entries, Copy name and Copy name without extension. They
+follow the same rules and settings as the keys. On Windows 11 they're in the
+menu you get from Show more options or Shift+right-click. You can turn them off
+in the settings.
+
 ## Settings
 - Separator: a new line, a comma, or a space between names.
 - Quote names: put each name in double quotes.
+- Right-click menu: show the two menu entries.
 
 ## Limits
 - Ctrl+Shift+N is also File Explorer's New folder key. While the mod is on, it
   copies names instead. Pick another key in the settings if you need New folder.
-- The keys don't work on the desktop or in file dialogs. Only File Explorer windows
-  count.
+- The keys and menu entries don't work on the desktop or in file dialogs. Only
+  File Explorer windows count.
+- The Windows 11 compact menu can't take new entries from a mod. Use Show more
+  options.
+- The menu entries only show when the menu has a default action, like Open.
 - Items that aren't files, like drives in This PC, give their internal name.
 - If nothing is selected, nothing happens.
 */
@@ -70,6 +81,9 @@ keys in the settings.
   - space: Space
 - quoteNames: false
   $name: Put each name in double quotes
+- contextMenu: true
+  $name: Right-click menu entries
+  $description: Add Copy name and Copy name without extension to the classic File Explorer menu
 */
 // ==/WindhawkModSettings==
 
@@ -80,6 +94,7 @@ keys in the settings.
 #include <shlobj.h>
 #include <shobjidl.h>
 
+#include <atomic>
 #include <cstdlib>
 #include <cstring>
 #include <cwctype>
@@ -102,6 +117,20 @@ static const UINT kTimerMs = 100;
 static const GUID kSidTopLevelBrowser = {
     0x4C96BE40, 0x915C, 0x11CF, {0x99, 0xD3, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37}};
 
+// Shell tab windows answer this with their IShellBrowser, without a reference.
+static const UINT kMsgGetShellBrowser = WM_USER + 7;
+
+// The folder view's Refresh command. Only the empty-space menu has it.
+static const UINT kRefreshCmd = 0x7103;
+
+// Our menu IDs sit above the shell's command range (up to 0x7FFF) and below the
+// system commands (0xF000). Each menu is still checked for a clash first.
+static const UINT kMenuIdBase = 0xE7A0;
+static const int kMenuIdTries = 16;
+
+static const wchar_t kMenuLabelWithExt[] = L"Copy name";
+static const wchar_t kMenuLabelNoExt[] = L"Copy name without extension";
+
 struct {
     UINT withExtModifiers;
     UINT withExtKey;
@@ -110,6 +139,11 @@ struct {
     std::wstring separator;
     bool quoteNames;
 } g_settings;
+
+// The menu hook reads the settings on File Explorer's own threads, so writes
+// and those reads go through this lock.
+static SRWLOCK g_settingsLock = SRWLOCK_INIT;
+static std::atomic<bool> g_contextMenu{true};
 
 static HANDLE g_thread = nullptr;
 static DWORD g_threadId = 0;
@@ -122,7 +156,12 @@ static bool g_keysWanted = false;
 static bool g_withExtRegistered = false;
 static bool g_noExtRegistered = false;
 static bool g_loggedRegisterError = false;
-static bool g_copying = false;
+static std::atomic<bool> g_copying{false};
+
+// Open menus that carry our entries, so unloading can close them first.
+static std::atomic<int> g_openMenus{0};
+static std::atomic<HWND> g_menuOwner{nullptr};
+static thread_local bool t_inMenuHook = false;
 
 static UINT ParseModifiers(PCWSTR s, UINT fallback) {
     if (!s) return fallback;
@@ -163,19 +202,30 @@ static UINT ReadKey(PCWSTR name, UINT fallback) {
 }
 
 static void LoadSettings() {
-    g_settings.withExtModifiers = ReadModifiers(L"withExtModifier", MOD_CONTROL | MOD_SHIFT);
-    g_settings.withExtKey = ReadKey(L"withExtKey", 'N');
-    g_settings.noExtModifiers =
-        ReadModifiers(L"noExtModifier", MOD_CONTROL | MOD_ALT | MOD_SHIFT);
-    g_settings.noExtKey = ReadKey(L"noExtKey", 'N');
+    UINT withExtModifiers = ReadModifiers(L"withExtModifier", MOD_CONTROL | MOD_SHIFT);
+    UINT withExtKey = ReadKey(L"withExtKey", 'N');
+    UINT noExtModifiers = ReadModifiers(L"noExtModifier", MOD_CONTROL | MOD_ALT | MOD_SHIFT);
+    UINT noExtKey = ReadKey(L"noExtKey", 'N');
 
     PCWSTR sep = Wh_GetStringSetting(L"separator");
-    if (sep && wcscmp(sep, L"comma") == 0) g_settings.separator = L", ";
-    else if (sep && wcscmp(sep, L"space") == 0) g_settings.separator = L" ";
-    else g_settings.separator = L"\r\n";
+    std::wstring separator;
+    if (sep && wcscmp(sep, L"comma") == 0) separator = L", ";
+    else if (sep && wcscmp(sep, L"space") == 0) separator = L" ";
+    else separator = L"\r\n";
     Wh_FreeStringSetting(sep);
 
-    g_settings.quoteNames = Wh_GetIntSetting(L"quoteNames") != 0;
+    bool quoteNames = Wh_GetIntSetting(L"quoteNames") != 0;
+
+    AcquireSRWLockExclusive(&g_settingsLock);
+    g_settings.withExtModifiers = withExtModifiers;
+    g_settings.withExtKey = withExtKey;
+    g_settings.noExtModifiers = noExtModifiers;
+    g_settings.noExtKey = noExtKey;
+    g_settings.separator = std::move(separator);
+    g_settings.quoteNames = quoteNames;
+    ReleaseSRWLockExclusive(&g_settingsLock);
+
+    g_contextMenu = Wh_GetIntSetting(L"contextMenu") != 0;
 }
 
 static bool IsExplorerWindow(HWND hWnd) {
@@ -362,41 +412,217 @@ static bool SetClipboardText(HWND owner, const std::wstring& text) {
     return ok;
 }
 
-static void CopyNames(HWND hWnd, bool withExt) {
-    HWND fg = GetForegroundWindow();
-    if (!IsExplorerWindow(fg)) return;
-
-    // COM calls can pump messages, so a second key press could land here
-    // while the first one is still running.
-    if (g_copying) return;
-    g_copying = true;
+// Copies the selected names of one shell browser. Both the hotkeys and the
+// menu entries end up here.
+static void CopySelection(IShellBrowser* browser, HWND clipboardOwner, bool withExt) {
+    // COM calls can pump messages, so a second request could land here while
+    // the first one is still running.
+    if (g_copying.exchange(true)) return;
 
     std::vector<std::wstring> names;
-    IShellBrowser* browser = FindShellBrowser(fg);
-    if (browser) {
-        if (!ReadSelectedNames(browser, withExt, names)) {
-            Wh_Log(L"Could not read the selection from this window");
-        }
-        browser->Release();
-    } else {
-        Wh_Log(L"Could not find the shell view for this window");
+    if (!ReadSelectedNames(browser, withExt, names)) {
+        Wh_Log(L"Could not read the selection from this window");
     }
 
     if (!names.empty()) {
+        AcquireSRWLockShared(&g_settingsLock);
+        std::wstring separator = g_settings.separator;
+        bool quoteNames = g_settings.quoteNames;
+        ReleaseSRWLockShared(&g_settingsLock);
+
         std::wstring text;
         for (size_t i = 0; i < names.size(); i++) {
-            if (i > 0) text += g_settings.separator;
-            if (g_settings.quoteNames) text += L'"';
+            if (i > 0) text += separator;
+            if (quoteNames) text += L'"';
             text += names[i];
-            if (g_settings.quoteNames) text += L'"';
+            if (quoteNames) text += L'"';
         }
-        if (SetClipboardText(hWnd, text)) {
+        if (SetClipboardText(clipboardOwner, text)) {
             Wh_Log(L"Copied %zu names %s", names.size(),
                    withExt ? L"with extensions" : L"without extensions");
         }
     }
 
     g_copying = false;
+}
+
+static void CopyNames(HWND hWnd, bool withExt) {
+    HWND fg = GetForegroundWindow();
+    if (!IsExplorerWindow(fg)) return;
+
+    IShellBrowser* browser = FindShellBrowser(fg);
+    if (browser) {
+        CopySelection(browser, hWnd, withExt);
+        browser->Release();
+    } else {
+        Wh_Log(L"Could not find the shell view for this window");
+    }
+}
+
+// Returns the shell browser behind a menu owner window when that window is the
+// file view of a File Explorer window. Anything else, like the navigation pane,
+// the desktop, or a file dialog, returns null. The caller releases the result.
+static IShellBrowser* BrowserForFileView(HWND hWnd) {
+    if (!hWnd || !IsExplorerWindow(GetAncestor(hWnd, GA_ROOT))) return nullptr;
+
+    bool inFileView = false;
+    for (HWND h = hWnd; h; h = GetAncestor(h, GA_PARENT)) {
+        wchar_t cls[64];
+        if (!GetClassNameW(h, cls, ARRAYSIZE(cls))) return nullptr;
+        if (!inFileView) {
+            if (wcscmp(cls, L"SHELLDLL_DefView") == 0) inFileView = true;
+            continue;
+        }
+        if (wcscmp(cls, L"ShellTabWindowClass") == 0) {
+            // The tab and the menu run on the same thread, so the pointer is
+            // safe to use here. Take a reference while we hold it.
+            IShellBrowser* browser =
+                (IShellBrowser*)SendMessageW(h, kMsgGetShellBrowser, 0, 0);
+            if (browser) browser->AddRef();
+            return browser;
+        }
+        if (wcscmp(cls, L"CabinetWClass") == 0) break;
+    }
+    return nullptr;
+}
+
+static bool HasSelection(IShellBrowser* browser) {
+    IShellView* view = nullptr;
+    if (FAILED(browser->QueryActiveShellView(&view)) || !view) return false;
+    int count = 0;
+    IFolderView* folderView = nullptr;
+    if (SUCCEEDED(view->QueryInterface(IID_IFolderView, (void**)&folderView)) && folderView) {
+        if (FAILED(folderView->ItemCount(SVGIO_SELECTION, &count))) count = 0;
+        folderView->Release();
+    }
+    view->Release();
+    return count > 0;
+}
+
+static bool IsMenuIdFree(HMENU menu, UINT id) {
+    // GetMenuState searches submenus too and returns -1 for an unknown ID.
+    return GetMenuState(menu, id, MF_BYCOMMAND) == (UINT)-1;
+}
+
+// Picks three free IDs: two entries and our separator. Returns 0 if none fit.
+static UINT PickMenuIdBase(HMENU menu) {
+    for (int i = 0; i < kMenuIdTries; i++) {
+        UINT base = kMenuIdBase + (UINT)i * 3;
+        if (IsMenuIdFree(menu, base) && IsMenuIdFree(menu, base + 1) &&
+            IsMenuIdFree(menu, base + 2)) {
+            return base;
+        }
+    }
+    return 0;
+}
+
+static bool InsertItem(HMENU menu, UINT pos, UINT id, PCWSTR label) {
+    MENUITEMINFOW mii{};
+    mii.cbSize = sizeof(mii);
+    mii.fMask = MIIM_ID | MIIM_FTYPE | (label ? MIIM_STRING : 0);
+    mii.fType = label ? MFT_STRING : MFT_SEPARATOR;
+    mii.wID = id;
+    mii.dwTypeData = (PWSTR)label;
+    return InsertMenuItemW(menu, pos, TRUE, &mii) != 0;
+}
+
+// Adds our entries above the last item, which is Properties on a file menu.
+// Returns the ID base, or 0 when the menu was left alone.
+static UINT AddMenuEntries(HMENU menu, HWND owner, UINT flags, IShellBrowser** browserOut) {
+    *browserOut = nullptr;
+    if (!g_contextMenu || !menu || !IsMenu(menu)) return 0;
+    // Without TPM_RETURNCMD the pick goes to the owner as WM_COMMAND, and the
+    // shell would get an ID it doesn't know.
+    if (!(flags & TPM_RETURNCMD)) return 0;
+
+    // Cheap checks first. A file menu has a default action, like Open, and the
+    // empty-space menu has Refresh. Column header menus have neither.
+    if (GetMenuDefaultItem(menu, FALSE, GMDI_USEDISABLED) == (UINT)-1) return 0;
+    if (!IsMenuIdFree(menu, kRefreshCmd)) return 0;
+
+    IShellBrowser* browser = BrowserForFileView(owner);
+    if (!browser) return 0;
+    if (!HasSelection(browser)) {
+        browser->Release();
+        return 0;
+    }
+
+    UINT base = PickMenuIdBase(menu);
+    int count = GetMenuItemCount(menu);
+    if (!base || count < 0) {
+        browser->Release();
+        return 0;
+    }
+
+    UINT pos = count > 0 ? (UINT)count - 1 : 0;
+    bool ok = InsertItem(menu, pos, base, kMenuLabelWithExt) &&
+              InsertItem(menu, pos + 1, base + 1, kMenuLabelNoExt) &&
+              InsertItem(menu, pos + 2, base + 2, nullptr);
+    if (!ok) {
+        // Undo whatever went in.
+        for (UINT id = base; id < base + 3; id++) DeleteMenu(menu, id, MF_BYCOMMAND);
+        browser->Release();
+        return 0;
+    }
+
+    *browserOut = browser;
+    return base;
+}
+
+static void RemoveMenuEntries(HMENU menu, UINT base) {
+    if (!IsMenu(menu)) return;
+    for (UINT id = base; id < base + 3; id++) DeleteMenu(menu, id, MF_BYCOMMAND);
+}
+
+// Runs the menu with our entries added, handles a pick of ours, and puts the
+// menu back the way the shell built it.
+template <typename Track>
+static BOOL TrackWithEntries(HMENU menu, UINT flags, HWND owner, Track track) {
+    // TrackPopupMenu may call TrackPopupMenuEx, so only the outer call adds.
+    if (t_inMenuHook) return track();
+
+    IShellBrowser* browser = nullptr;
+    UINT base = AddMenuEntries(menu, owner, flags, &browser);
+    if (!base) return track();
+
+    t_inMenuHook = true;
+    g_menuOwner = owner;
+    g_openMenus++;
+    BOOL result = track();
+    t_inMenuHook = false;
+
+    RemoveMenuEntries(menu, base);
+
+    UINT picked = (UINT)result;
+    if (picked == base || picked == base + 1) {
+        CopySelection(browser, owner, picked == base);
+        // The shell gets no command, as if the menu was closed.
+        result = 0;
+    }
+    browser->Release();
+    // Lowered last, so unloading also waits for the copy above.
+    g_openMenus--;
+    return result;
+}
+
+using TrackPopupMenuEx_t = decltype(&TrackPopupMenuEx);
+static TrackPopupMenuEx_t TrackPopupMenuEx_Original;
+
+static BOOL WINAPI TrackPopupMenuEx_Hook(HMENU hMenu, UINT uFlags, int x, int y, HWND hWnd,
+                                         LPTPMPARAMS lptpm) {
+    return TrackWithEntries(hMenu, uFlags, hWnd, [&] {
+        return TrackPopupMenuEx_Original(hMenu, uFlags, x, y, hWnd, lptpm);
+    });
+}
+
+using TrackPopupMenu_t = decltype(&TrackPopupMenu);
+static TrackPopupMenu_t TrackPopupMenu_Original;
+
+static BOOL WINAPI TrackPopupMenu_Hook(HMENU hMenu, UINT uFlags, int x, int y, int nReserved,
+                                       HWND hWnd, const RECT* prcRect) {
+    return TrackWithEntries(hMenu, uFlags, hWnd, [&] {
+        return TrackPopupMenu_Original(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
+    });
 }
 
 static LRESULT CALLBACK MsgWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -466,6 +692,17 @@ static DWORD WINAPI ThreadProc(LPVOID) {
 
 BOOL Wh_ModInit() {
     LoadSettings();
+
+    // A failed hook only costs the menu entries. The hotkeys still work.
+    if (!WindhawkUtils::SetFunctionHook(TrackPopupMenuEx, TrackPopupMenuEx_Hook,
+                                        &TrackPopupMenuEx_Original)) {
+        Wh_Log(L"Could not hook TrackPopupMenuEx, menu entries are off");
+    }
+    if (!WindhawkUtils::SetFunctionHook(TrackPopupMenu, TrackPopupMenu_Hook,
+                                        &TrackPopupMenu_Original)) {
+        Wh_Log(L"Could not hook TrackPopupMenu");
+    }
+
     g_readyEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
     if (!g_readyEvent) return FALSE;
     g_thread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &g_threadId);
@@ -481,6 +718,17 @@ BOOL Wh_ModInit() {
 void Wh_ModSettingsChanged() {
     HWND wnd = g_msgWnd;
     if (wnd) PostMessageW(wnd, WM_APP_RELOAD, 0, 0);
+}
+
+void Wh_ModBeforeUninit() {
+    // A menu with our entries may still be open. Close it so the hook returns
+    // before the mod's code goes away.
+    g_contextMenu = false;
+    for (int i = 0; i < 100 && g_openMenus > 0; i++) {
+        HWND owner = g_menuOwner;
+        if (owner) PostMessageW(owner, WM_CANCELMODE, 0, 0);
+        Sleep(20);
+    }
 }
 
 void Wh_ModUninit() {
