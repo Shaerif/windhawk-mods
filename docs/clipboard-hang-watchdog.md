@@ -171,7 +171,7 @@ Your clipboard hangs and the log shows nothing. That points at the Clipboard Use
 
 There's no log file. Check that the mod is enabled. The file path comes from the LOCALAPPDATA variable, and if Windows can't give the mod that path, it writes to the Windhawk log only.
 
-The mod didn't end the program. Check that Action is endHolder and that the hold lasted at least Seconds before the holding program is ended. Check the protected list too. A Not ending line means the program is on it, and an owner that stops responding is never ended.
+The mod didn't end the program. Check that Action is endHolder and that the hold lasted at least Seconds before the holding program is ended. Check the protected list too. A Not ending line means the program is on it, has process ID 0, or is the explorer.exe the mod runs in. An owner that stops responding is never ended.
 
 The log says Could not open or Ended with failed. Windows refused the request to end that program. The Could not open line carries the error number Windows gave.
 
