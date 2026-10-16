@@ -1,8 +1,8 @@
 // ==WindhawkMod==
-// @id              copy-file-names
-// @name            Copy File Names
-// @description     Copy the names of the selected files in File Explorer, not the paths, with a hotkey or the right-click menu
-// @version         0.2.0
+// @id              bulk-copy-file-and-folder-names
+// @name            Bulk Copy File and Folder Names
+// @description     Copy the names of one or many selected files and folders in File Explorer, not the paths, with a hotkey or the right-click menu
+// @version         0.3.0
 // @author          Shaerif
 // @include         explorer.exe
 // @compilerOptions -luser32 -lole32 -loleaut32 -luuid
@@ -10,26 +10,27 @@
 
 // ==WindhawkModReadme==
 /*
-# Copy File Names
+# Bulk Copy File and Folder Names
 Windows has Copy as path (Ctrl+Shift+C). It gives you full paths in quotes. Often
-you only want the names. This mod copies the names of the selected files and
-folders as plain text, one per line.
+you only want the names. This mod copies the names of the files and folders you
+select in File Explorer as plain text, one per line. It works on one item or on
+many at once, and a selection can mix files and folders.
 
 ## Keys
 - Ctrl+Shift+N copies the names with their extensions.
 - Ctrl+Alt+Shift+N copies the names without extensions. Folders keep their full
-  name. `a.tar.gz` becomes `a.tar`. A name that starts with a dot, like
-  `.gitignore`, stays whole.
+  name, so `sub.folder` stays `sub.folder`. `a.tar.gz` becomes `a.tar`. A name
+  that starts with a dot, like `.gitignore`, stays whole.
 
 The keys only work while a File Explorer window is in front. You can change both
 keys in the settings.
 
 ## Right-click menu
-Right-click a file, a folder, or a selection in a File Explorer window. The
-classic menu gets two entries, Copy name and Copy name without extension. They
-follow the same rules and settings as the keys. On Windows 11 they're in the
-menu you get from Show more options or Shift+right-click. You can turn them off
-in the settings.
+Right-click a file, a folder, or a selection of many files and folders in a File
+Explorer window. The classic menu gets two entries, Copy name and Copy name
+without extension. They follow the same rules and settings as the keys. On
+Windows 11 they're in the menu you get from Show more options or
+Shift+right-click. You can turn them off in the settings.
 
 ## Settings
 - Separator: a new line, a comma, or a space between names.
@@ -43,8 +44,10 @@ in the settings.
   File Explorer windows count.
 - The Windows 11 compact menu can't take new entries from a mod. Use Show more
   options.
-- The menu entries only show when the menu has a default action, like Open.
-- Items that aren't files, like drives in This PC, give their internal name.
+- The menu entries don't show on the column header menu or the menu you get
+  from empty space in a folder.
+- Items that aren't files or folders, like drives in This PC, give their
+  internal name.
 - If nothing is selected, nothing happens.
 */
 // ==/WindhawkModReadme==
@@ -75,6 +78,7 @@ in the settings.
   $description: A letter, a digit, or F1 to F24
 - separator: newline
   $name: Separator
+  $description: What goes between names when you copy many files and folders at once
   $options:
   - newline: New line
   - comma: Comma
@@ -83,7 +87,7 @@ in the settings.
   $name: Put each name in double quotes
 - contextMenu: true
   $name: Right-click menu entries
-  $description: Add Copy name and Copy name without extension to the classic File Explorer menu
+  $description: Add Copy name and Copy name without extension to the classic File Explorer menu for files and folders
 */
 // ==/WindhawkModSettings==
 
@@ -516,6 +520,23 @@ static UINT PickMenuIdBase(HMENU menu) {
     return 0;
 }
 
+static bool HasCheckedItem(HMENU menu, int count) {
+    for (int i = 0; i < count; i++) {
+        UINT state = GetMenuState(menu, (UINT)i, MF_BYPOSITION);
+        if (state != (UINT)-1 && (state & MF_CHECKED)) return true;
+    }
+    return false;
+}
+
+static bool IsOnColumnHeader(int x, int y) {
+    POINT pt{x, y};
+    HWND hWnd = WindowFromPoint(pt);
+    if (!hWnd) return false;
+    wchar_t cls[64];
+    if (!GetClassNameW(hWnd, cls, ARRAYSIZE(cls))) return false;
+    return wcscmp(cls, L"SysHeader32") == 0;
+}
+
 static bool InsertItem(HMENU menu, UINT pos, UINT id, PCWSTR label) {
     MENUITEMINFOW mii{};
     mii.cbSize = sizeof(mii);
@@ -528,17 +549,27 @@ static bool InsertItem(HMENU menu, UINT pos, UINT id, PCWSTR label) {
 
 // Adds our entries above the last item, which is Properties on a file menu.
 // Returns the ID base, or 0 when the menu was left alone.
-static UINT AddMenuEntries(HMENU menu, HWND owner, UINT flags, IShellBrowser** browserOut) {
+static UINT AddMenuEntries(HMENU menu, HWND owner, UINT flags, int x, int y,
+                           IShellBrowser** browserOut) {
     *browserOut = nullptr;
     if (!g_contextMenu || !menu || !IsMenu(menu)) return 0;
     // Without TPM_RETURNCMD the pick goes to the owner as WM_COMMAND, and the
     // shell would get an ID it doesn't know.
     if (!(flags & TPM_RETURNCMD)) return 0;
 
-    // Cheap checks first. A file menu has a default action, like Open, and the
-    // empty-space menu has Refresh. Column header menus have neither.
-    if (GetMenuDefaultItem(menu, FALSE, GMDI_USEDISABLED) == (UINT)-1) return 0;
+    // Cheap checks first. The empty-space menu has Refresh.
     if (!IsMenuIdFree(menu, kRefreshCmd)) return 0;
+    int count = GetMenuItemCount(menu);
+    if (count < 0) return 0;
+    // A menu for files and folders usually has a default action, like Open,
+    // and the column header menu has none. File Explorer drops Open when more
+    // than 15 files are selected, so a menu without one still counts unless
+    // it looks like the column header menu: check marks on the shown columns,
+    // or opened over the header itself.
+    if (GetMenuDefaultItem(menu, FALSE, GMDI_USEDISABLED) == (UINT)-1 &&
+        (HasCheckedItem(menu, count) || IsOnColumnHeader(x, y))) {
+        return 0;
+    }
 
     IShellBrowser* browser = BrowserForFileView(owner);
     if (!browser) return 0;
@@ -548,8 +579,7 @@ static UINT AddMenuEntries(HMENU menu, HWND owner, UINT flags, IShellBrowser** b
     }
 
     UINT base = PickMenuIdBase(menu);
-    int count = GetMenuItemCount(menu);
-    if (!base || count < 0) {
+    if (!base) {
         browser->Release();
         return 0;
     }
@@ -577,12 +607,12 @@ static void RemoveMenuEntries(HMENU menu, UINT base) {
 // Runs the menu with our entries added, handles a pick of ours, and puts the
 // menu back the way the shell built it.
 template <typename Track>
-static BOOL TrackWithEntries(HMENU menu, UINT flags, HWND owner, Track track) {
+static BOOL TrackWithEntries(HMENU menu, UINT flags, int x, int y, HWND owner, Track track) {
     // TrackPopupMenu may call TrackPopupMenuEx, so only the outer call adds.
     if (t_inMenuHook) return track();
 
     IShellBrowser* browser = nullptr;
-    UINT base = AddMenuEntries(menu, owner, flags, &browser);
+    UINT base = AddMenuEntries(menu, owner, flags, x, y, &browser);
     if (!base) return track();
 
     t_inMenuHook = true;
@@ -610,7 +640,7 @@ static TrackPopupMenuEx_t TrackPopupMenuEx_Original;
 
 static BOOL WINAPI TrackPopupMenuEx_Hook(HMENU hMenu, UINT uFlags, int x, int y, HWND hWnd,
                                          LPTPMPARAMS lptpm) {
-    return TrackWithEntries(hMenu, uFlags, hWnd, [&] {
+    return TrackWithEntries(hMenu, uFlags, x, y, hWnd, [&] {
         return TrackPopupMenuEx_Original(hMenu, uFlags, x, y, hWnd, lptpm);
     });
 }
@@ -620,7 +650,7 @@ static TrackPopupMenu_t TrackPopupMenu_Original;
 
 static BOOL WINAPI TrackPopupMenu_Hook(HMENU hMenu, UINT uFlags, int x, int y, int nReserved,
                                        HWND hWnd, const RECT* prcRect) {
-    return TrackWithEntries(hMenu, uFlags, hWnd, [&] {
+    return TrackWithEntries(hMenu, uFlags, x, y, hWnd, [&] {
         return TrackPopupMenu_Original(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
     });
 }
@@ -663,7 +693,7 @@ static DWORD WINAPI ThreadProc(LPVOID) {
     WNDCLASSW wc{};
     wc.lpfnWndProc = MsgWndProc;
     wc.hInstance = GetModuleHandleW(nullptr);
-    wc.lpszClassName = L"WindhawkCopyFileNamesWnd";
+    wc.lpszClassName = L"WindhawkBulkCopyFileAndFolderNamesWnd";
     RegisterClassW(&wc);
 
     HWND wnd = nullptr;

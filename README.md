@@ -1,6 +1,6 @@
 # Windhawk mods for Windows 11: window management, focus, and clipboard fixes
 
-A small set of custom [Windhawk](https://windhawk.net) mods for Windows 11. Each one fixes a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, and Copy as path when you only want the file names. They're written in C++, they're MIT licensed, and you can install any of them on its own.
+A small set of custom [Windhawk](https://windhawk.net) mods for Windows 11. Each one fixes a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, and Copy as path when you only want the names of one or many files and folders. They're written in C++, they're MIT licensed, and you can install any of them on its own.
 
 We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
 
@@ -13,6 +13,7 @@ We build these because Windows 11 leaves small gaps that Mac and Linux desktops 
 - [Questions and answers](#questions-and-answers)
 - [Mod reference](#mod-reference)
 - [Status](#status)
+- [Disclaimer](#disclaimer)
 - [License](#license)
 
 ## Quick summary
@@ -24,7 +25,7 @@ We build these because Windows 11 leaves small gaps that Mac and Linux desktops 
 | Title Bar Scroll Roll-Up | A window you want to fold out of the way | explorer.exe | `mods/titlebar-scroll-rollup.wh.cpp` |
 | Window Rules | Apps open at a random spot, size, or opacity every time | All apps except File Explorer and core system processes | `mods/window-rules.wh.cpp` |
 | Clipboard Hang Watchdog | Copy and paste stop working and you don't know why | explorer.exe | `mods/clipboard-hang-watchdog.wh.cpp` |
-| Copy File Names | Copy as path gives full paths when you only want the names | explorer.exe | `mods/copy-file-names.wh.cpp` |
+| Bulk Copy File and Folder Names | Copy as path gives full paths when you only want the names of one or many files and folders | explorer.exe | `mods/bulk-copy-file-and-folder-names.wh.cpp` |
 
 ## Why we build these mods
 Windhawk lets you change how Windows behaves by injecting small pieces of code into running programs. It doesn't patch system files on disk. That makes it a good fit for narrow fixes, because a mod is one readable file and you can turn it off at any time.
@@ -124,14 +125,14 @@ The log lives at `%LOCALAPPDATA%\clipboard-hang-watchdog.log` and uses 12-hour t
 
 Limits: it finds a holder only if that program opened the clipboard with a window handle, or if it owns delayed-render data and has stopped responding. Windows waits up to 30 seconds for delayed rendering. A hang inside the Clipboard User Service (cbdhsvc) is a separate cause, and this mod can't see it.
 
-### Copy File Names
-Copy File Names is a Windhawk mod that copies the names of the selected files and folders in File Explorer, without their paths.
+### Bulk Copy File and Folder Names
+Bulk Copy File and Folder Names is a Windhawk mod that copies the names of the files and folders you select in File Explorer, without their paths. It works on one item or on many at once, and a selection can mix files and folders.
 
-Problem: Windows 11 has Copy as path (Ctrl+Shift+C), but it gives you full paths in quotes. If you only want the names, you have to trim each one by hand.
+Problem: Windows 11 has Copy as path (Ctrl+Shift+C), but it gives you full paths in quotes. If you only want the names, you have to trim each one by hand, and that's slow when there are dozens.
 
-What it does: select files in File Explorer and press Ctrl+Shift+N. The names go to the clipboard as plain text, one per line. Press Ctrl+Alt+Shift+N to copy them without extensions. Folders keep their full name. `a.tar.gz` becomes `a.tar`, and a dotfile like `.gitignore` stays whole. The keys only work while a File Explorer window is in front, so other apps keep their own shortcuts.
+What it does: select one or more files and folders in File Explorer and press Ctrl+Shift+N. The names go to the clipboard as plain text, one per line. Press Ctrl+Alt+Shift+N to copy them without extensions. Folders keep their full name, so `sub.folder` stays `sub.folder`. `a.tar.gz` becomes `a.tar`, and a dotfile like `.gitignore` stays whole. The keys only work while a File Explorer window is in front, so other apps keep their own shortcuts.
 
-You can also right-click a file, a folder, or a whole selection. The menu gets two entries, Copy name and Copy name without extension. They follow the same rules and settings as the keys. On Windows 11 they're in the classic menu, the one you get from Show more options or Shift+right-click. They don't show on empty space, on the desktop, or in other apps.
+You can also right-click a file, a folder, or a selection of many files and folders. The menu gets two entries, Copy name and Copy name without extension. They follow the same rules and settings as the keys. On Windows 11 they're in the classic menu, the one you get from Show more options or Shift+right-click. They don't show on empty space, on column headers, on the desktop, or in other apps.
 
 Settings:
 - `withExtModifier` (default Ctrl+Shift) and `withExtKey` (default N): the keys for names with extensions.
@@ -140,7 +141,7 @@ Settings:
 - `quoteNames` (default off): put each name in double quotes.
 - `contextMenu` (default on): show the two right-click menu entries. The keys work either way.
 
-Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys and menu entries don't work on the desktop or in Open and Save dialogs. The Windows 11 compact menu can't take new entries from a mod. Windows only lets apps with a registered package add to it. The entries only show when the menu has a default action, like Open. The menu labels are in English. Items that aren't files, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
+Limits: Ctrl+Shift+N is also File Explorer's New folder shortcut. While the mod is on, that key copies names instead, so pick another key if you use New folder a lot. The keys and menu entries don't work on the desktop or in Open and Save dialogs. The Windows 11 compact menu can't take new entries from a mod. Windows only lets apps with a registered package add to it. The menu labels are in English. Items that aren't files or folders, like drives in This PC, give their internal name. The mod doesn't change your files or the normal Copy command.
 
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
@@ -200,8 +201,8 @@ Install Window Rules and add a rule with the program file name, for example `not
 ### How do I roll a window up to its title bar in Windows 11?
 Install Title Bar Scroll Roll-Up and scroll the mouse wheel on a window's title bar. The window rolls up to its title bar. Scroll the other way and it comes back.
 
-### How do I copy only the file names in File Explorer?
-Install Copy File Names, select the files, and press Ctrl+Shift+N. You get the names with their extensions, one per line, ready to paste. Ctrl+Alt+Shift+N copies them without extensions. You can also right-click the selection and pick Copy name.
+### How do I copy only the file and folder names in File Explorer?
+Install Bulk Copy File and Folder Names, select the files and folders, and press Ctrl+Shift+N. One item or many, it's the same key. You get the names with their extensions, one per line, ready to paste. Ctrl+Alt+Shift+N copies them without extensions. You can also right-click the selection and pick Copy name.
 
 ### Is it safe to run these mods?
 Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
@@ -243,10 +244,13 @@ That points at the Clipboard User Service (cbdhsvc) or a holder the mod can't se
 | titlebar-scroll-rollup | 0.1.0 | explorer.exe | enabled, reverse, modifier |
 | window-rules | 0.1.0 | all apps except listed excludes | enabled, logRules, rules |
 | clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
-| copy-file-names | 0.2.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
+| bulk-copy-file-and-folder-names | 0.3.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 
 ## Status
-Tested on Windows 11 build 26300 with a single monitor. We checked the roll-up, the rescue mod, and window rules on plain test windows (see the screenshots). For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet. The clipboard watchdog was tested for hold detection and for ending a holder, and the log trim, which moves an over-limit log to a `.old` file, passed a test with an 8-run overflow. We have no recorded live test for the window cycler, focus follows mouse, or copy file names.
+Tested on Windows 11 build 26300 with a single monitor. We checked the roll-up, the rescue mod, and window rules on plain test windows (see the screenshots). For the rescue mod, a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet. The clipboard watchdog was tested for hold detection and for ending a holder, and the log trim, which moves an over-limit log to a `.old` file, passed a test with an 8-run overflow. We have no recorded live test for the window cycler, focus follows mouse, or bulk copy file and folder names.
+
+## Disclaimer
+These mods come with no warranty of any kind, and you use them at your own risk. The author isn't liable for any damage, data loss, crash, or other harm they cause. A mod runs inside Windows apps, so test it on your own machine before you rely on it.
 
 ## License
 MIT
