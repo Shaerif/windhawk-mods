@@ -79,7 +79,7 @@ Budget.2026.xlsx comes out as Budget.2026, and the folder Backup.2025 stays as i
 ### 4. Use the right-click menu instead
 Hold Shift and right-click the selection, or right-click it and choose Show more options. The classic menu has two new entries, Copy name and Copy name without extension. They do the same as the two keys and follow the same settings.
 
-![The classic right-click menu for the selection, with Copy name and Copy name without extension above Properties](screenshots/bulk-copy-step-4-right-click-menu.png)
+![The lower part of the classic right-click menu, with Copy name and Copy name without extension in their own group above Properties](screenshots/bulk-copy-step-4-right-click-menu.png)
 
 The two entries sit in their own group right above Properties.
 

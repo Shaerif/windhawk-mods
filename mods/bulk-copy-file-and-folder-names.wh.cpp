@@ -62,7 +62,7 @@ Shift+right-click. You can turn them off in the settings.
    ![The same names pasted again without extensions, while the folder Backup.2025 keeps its full name](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-3-names-without-extensions.png)
 4. Or hold Shift and right-click the selection, and pick Copy name or Copy name
    without extension.
-   ![The classic right-click menu for the selection, with Copy name and Copy name without extension above Properties](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-4-right-click-menu.png)
+   ![The lower part of the classic right-click menu, with Copy name and Copy name without extension in their own group above Properties](https://raw.githubusercontent.com/Shaerif/windhawk-mods/main/docs/screenshots/bulk-copy-step-4-right-click-menu.png)
 
 ### Gotchas
 - Step 2: Ctrl+Shift+N doesn't make new folders while the mod is on. Move the

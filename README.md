@@ -91,7 +91,7 @@ Copy as path (Ctrl+Shift+C) gives you full paths in quotes. Select one or more f
 
 Settings: withExtModifier and withExtKey (default Ctrl+Shift and N), noExtModifier and noExtKey (default Ctrl+Alt+Shift and N), separator (default newline), quoteNames (default off) and contextMenu (default on).
 
-![The classic right-click menu in File Explorer with Copy name and Copy name without extension above Properties](docs/screenshots/bulk-copy-step-4-right-click-menu.png)
+![The lower part of the classic right-click menu, with Copy name and Copy name without extension in their own group above Properties](docs/screenshots/bulk-copy-step-4-right-click-menu.png)
 
 Full guide: [Bulk Copy File and Folder Names tutorial](docs/bulk-copy-file-and-folder-names.md).
 
