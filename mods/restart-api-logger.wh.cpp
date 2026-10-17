@@ -43,8 +43,8 @@ returns.
 When the mod loads into a process, it logs one line with the process path and
 the lists of hooked and skipped APIs. If you never see that line for
 TrustedInstaller.exe or MoUsoCoreWorker.exe, Windhawk didn't inject the mod into
-that process. Windhawk protects some system processes, and this isn't verified
-for these two.
+that process. Windhawk protects some system processes. On our test PC it loaded
+the mod into both programs, but no other PC has been checked.
 
 ## Where the log goes
 The mod writes to the Windhawk log. A restart can kill the process before that
