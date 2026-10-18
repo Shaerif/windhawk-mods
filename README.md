@@ -1,11 +1,11 @@
 # Windhawk mods for Windows 11: window management, focus, and clipboard fixes
 
-A set of eight custom [Windhawk](https://windhawk.net) mods for Windows 11. Seven of them fix a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, and Copy as path when you only want the names of one or many files and folders. The eighth logs which Windows API call Windows Update uses when it restarts your PC. They're written in C++, they're MIT licensed, and you can install any of them on its own.
+A set of nine custom [Windhawk](https://windhawk.net) mods for Windows 11. Eight of them fix a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, Copy as path when you only want the names of one or many files and folders, and an auto-hidden taskbar that slides in behind a window. The ninth logs which Windows API call Windows Update uses when it restarts your PC. They're written in C++, they're MIT licensed, and you can install any of them on its own.
 
 We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
 
 ## Documentation
-Each mod has its own step-by-step tutorial in the docs folder. The [docs index](docs/README.md) lists all of them.
+Eight of the nine mods have their own step-by-step tutorial in the docs folder. The [docs index](docs/README.md) lists them. Taskbar Always On Top has no tutorial yet.
 
 ## Contents
 - [Quick summary](#quick-summary)
@@ -30,6 +30,7 @@ Each mod has its own step-by-step tutorial in the docs folder. The [docs index](
 | Clipboard Hang Watchdog | Copy and paste stop working and you don't know why | explorer.exe | `mods/clipboard-hang-watchdog.wh.cpp` |
 | Bulk Copy File and Folder Names | Copy as path gives full paths when you only want the names of one or many files and folders | explorer.exe | `mods/bulk-copy-file-and-folder-names.wh.cpp` |
 | Restart API Logger | Windows Update restarts your PC and you can't tell which API call it used | MoUsoCoreWorker.exe and TrustedInstaller.exe | `mods/restart-api-logger.wh.cpp` |
+| Taskbar Always On Top | An auto-hidden taskbar slides in behind a window that covers the screen edge | explorer.exe | `mods/taskbar-always-on-top.wh.cpp` |
 
 ## Why we build these mods
 Windhawk lets you change how Windows behaves by injecting small pieces of code into running programs. It doesn't patch system files on disk. That makes it a good fit for narrow fixes, because a mod is one readable file and you can turn it off at any time.
@@ -42,7 +43,7 @@ We follow three rules when we write a mod:
 The first mod in this repo came from a real problem. A Windows installer opened its window outside the visible area and wouldn't come back. That's why the rescue mod exists, and why it checks each window once instead of fighting you every time you drag one near an edge.
 
 ## The mods
-Each mod has a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
+Eight of the nine mods have a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
 
 ### Off-Screen Window Rescue
 Some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. When a normal window first appears and less than half of it is visible, with the default setting, this mod moves it to the center of the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
@@ -101,6 +102,15 @@ Windows Update sometimes restarts the PC on its own, and the event log doesn't s
 Settings: logLevel (default detailed) and fileLog (default on), which also writes to %ProgramData%\restart-api-logger.log.
 
 Full guide: [Restart API Logger tutorial](docs/restart-api-logger.md).
+
+### Taskbar Always On Top
+With an auto-hidden taskbar, a window at the screen edge can still cover it. A topmost window does this. You reveal the taskbar and it slides in behind that window, where you can't click it. This mod moves the taskbar above the windows that cover it, topmost windows included. It checks every 50 ms and does nothing while the taskbar is hidden. It never moves or resizes the taskbar.
+
+Settings: includeSecondary (default on) and intervalMs (default 50, range 10 to 1000).
+
+Limits: it works in explorer.exe only, on x86-64, and only when auto-hide is on. A window in a higher z-order band stays in front, and the mod can't change that.
+
+Tested on Windows 11 build 26300 on our PC and build 29683 in a VM. Each had one monitor, auto-hide on and the taskbar at the bottom. In the topmost test the taskbar sat above the test window in 30 of 30 samples with the mod on and in 0 of 30 with it off. We haven't tested other setups.
 
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
@@ -163,6 +173,9 @@ Install Title Bar Scroll Roll-Up and scroll the mouse wheel on a window's title 
 ### How do I copy only the file and folder names in File Explorer?
 Install Bulk Copy File and Folder Names, select the files and folders, and press Ctrl+Shift+N. One item or many, it's the same key. You get the names with their extensions, one per line, ready to paste. Ctrl+Alt+Shift+N copies them without extensions. You can also right-click the selection and pick Copy name.
 
+### How do I keep an auto-hidden taskbar in front of a topmost window?
+Install Taskbar Always On Top and turn on auto-hide for the taskbar. When you reveal the taskbar, the mod moves it above the windows that cover it, topmost windows included. It only works in explorer.exe, and a window in a higher z-order band can still stay in front.
+
 ### Is it safe to run these mods?
 Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
 
@@ -220,9 +233,10 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 | clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
 | bulk-copy-file-and-folder-names | 0.3.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 | restart-api-logger | 0.1.0 | MoUsoCoreWorker.exe, TrustedInstaller.exe | logLevel, fileLog |
+| taskbar-always-on-top | 0.1.1 | explorer.exe | includeSecondary, intervalMs |
 
 ## Status
-Tested on Windows 11 build 26300 with a single monitor. Seven of the eight mods have a recorded live test. The restart API logger doesn't. The guides in the docs folder have the screenshots.
+Tested on Windows 11 build 26300 with a single monitor. Eight of the nine mods have a recorded live test. The restart API logger doesn't. Taskbar Always On Top was also tested on build 29683 in a VM. The guides in the docs folder have the screenshots.
 
 - Title Bar Scroll Roll-Up: checked on a plain test window. Scroll up rolled it up and scroll down brought it back.
 - Off-Screen Window Rescue: a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet.
@@ -232,6 +246,7 @@ Tested on Windows 11 build 26300 with a single monitor. Seven of the eight mods 
 - Same-App Window Cycler: one recorded live run on three test windows of one program. Two presses of Alt+Backtick brought them forward in the order the code describes. Alt+Shift+Backtick and real apps haven't been tested.
 - Focus Follows Mouse: one recorded live run with the default settings. A hover with no click gave focus to a window behind another one, and that window stayed behind. raiseWindow on and real apps haven't been tested.
 - Restart API Logger: no recorded live test of a restart. Its log file on our test PC shows that Windhawk loaded it into MoUsoCoreWorker.exe and TrustedInstaller.exe with all nine APIs hooked, but it hasn't logged a restart call yet.
+- Taskbar Always On Top: tested on build 26300 and on build 29683 in a VM, each with one monitor, auto-hide on and the taskbar at the bottom. With a topmost test window, the taskbar sat above it in 30 of 30 samples with the mod on and in 0 of 30 with it off. Secondary monitors and other taskbar positions haven't been tested.
 
 ## Disclaimer
 These mods come with no warranty of any kind, and you use them at your own risk. The author isn't liable for any damage, data loss, crash, or other harm they cause. A mod runs inside Windows apps, so test it on your own machine before you rely on it.
