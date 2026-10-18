@@ -2,7 +2,7 @@
 // @id              taskbar-always-on-top
 // @name            Taskbar Always On Top
 // @description     When an auto-hidden taskbar slides in, show it above every other window, even other topmost windows
-// @version         0.1.0
+// @version         0.1.1
 // @author          Shaerif
 // @include         explorer.exe
 // @architecture    x86-64
@@ -31,6 +31,12 @@ sits above it, the mod asks Windows to set the taskbar topmost again. That puts
 it in front of the others. It doesn't take focus, and it doesn't move or resize
 anything.
 
+The mod ignores windows that belong to explorer.exe, such as jump lists, thumbnail
+previews, the tray popups, the clock flyout and context menus. That way it never
+draws the taskbar over them. The one exception is a File Explorer folder window.
+Those can be set to stay on top, so the mod counts them. The mod also waits while
+a menu is open on the taskbar or while a mouse button is held down.
+
 The thread does nothing when the taskbar is hidden or when Windows shows no
 auto-hide. When the mod unloads, it stops the thread and puts each taskbar window
 back the way it found it.
@@ -46,8 +52,10 @@ change anything else.
   but reacts later.
 
 ## Limits
-- This mod hasn't been tested on any other PC. It was written from the Windows
-  API rules and has not run on a live system yet. Expect to adjust it.
+- The mod was tested on one PC: Windows 11 build 26300, one monitor, auto-hide
+  on. In that test the taskbar went above a topmost test window from another
+  process. Secondary monitors and taskbars that aren't at the bottom weren't
+  tested. No other PC was checked. Expect to adjust it.
 - Windows keeps windows in layers called bands. A window can't pass another
   window that sits in a higher band, and this mod can't change that. Some system
   windows, some accessibility tools and exclusive fullscreen games may stay in
@@ -64,8 +72,8 @@ the screen edge where the taskbar hides.
 
 1. Move the mouse to the screen edge. The taskbar slides in and now sits in front
    of the topmost window.
-2. Press the Windows key. The taskbar and the Start menu open. The taskbar stays
-   in front of the topmost window.
+2. Press the Windows key. Windows already brings the taskbar forward when Start
+   opens, so the mod isn't involved here.
 3. Set Check interval (milliseconds) higher if you want less CPU use. Set it
    lower if the taskbar shows behind the window for a moment before it jumps in
    front.
@@ -73,13 +81,17 @@ the screen edge where the taskbar hides.
 ### Gotchas
 - Step 1: The mod can't tell the taskbar is shown until it has slid at least
   half way in. You may see a short moment behind the window.
-- Step 2: How the taskbar reveal works on Windows 11 is not confirmed here. If
-  the taskbar stays behind the window, open the Windhawk log and report what you
-  see.
 - Step 3: A value below 10 counts as 10, and a value above 1000 counts as 1000.
+- If a topmost window covers the very last pixel row of the screen, Windows won't
+  reveal the taskbar at all. This is a Windows limit, not the mod.
 - With a left or right taskbar and another monitor beside it, the mod may judge
   the hidden taskbar as shown. The effect is harmless. It just sets the taskbar
   topmost a little more often.
+
+## Version history
+- 0.1.1: Stopped the mod from drawing the taskbar over jump lists and other
+  explorer popups.
+- 0.1.0: First release.
 */
 // ==/WindhawkModReadme==
 
@@ -150,10 +162,47 @@ static bool IsRevealed(HWND hWnd, RECT* outRect) {
     return true;
 }
 
-// True when a visible window above the taskbar overlaps it.
-static bool IsCovered(HWND taskbar, const RECT& taskbarRect) {
+// Real File Explorer folder windows. A user may keep one on top, so they count.
+static bool IsFolderWindow(HWND w) {
+    wchar_t cls[32];
+    int n = GetClassNameW(w, cls, ARRAYSIZE(cls));
+    return n > 0 && (wcscmp(cls, L"CabinetWClass") == 0 || wcscmp(cls, L"ExploreWClass") == 0);
+}
+
+// True for explorer popups the taskbar must not draw over: jump lists, flyouts,
+// tray popups, the edge grip window and tool or popup windows owned by explorer.
+static bool IsShellPopup(HWND w, DWORD taskbarPid) {
+    DWORD pid = 0;
+    GetWindowThreadProcessId(w, &pid);
+    if (pid == taskbarPid && !IsFolderWindow(w)) return true;
+
+    HWND owner = GetWindow(w, GW_OWNER);
+    if (!owner) return false;
+    DWORD ownerPid = 0;
+    GetWindowThreadProcessId(owner, &ownerPid);
+    if (ownerPid != taskbarPid) return false;
+    return (GetWindowLongPtrW(w, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) != 0 ||
+           (GetWindowLongPtrW(w, GWL_STYLE) & WS_POPUP) != 0;
+}
+
+// True when a menu or popup menu is open on the taskbar thread.
+static bool MenuActive(DWORD taskbarTid) {
+    GUITHREADINFO gti{sizeof(gti)};
+    if (!GetGUIThreadInfo(taskbarTid, &gti)) return false;
+    return (gti.flags & (GUI_INMENUMODE | GUI_POPUPMENUMODE)) != 0;
+}
+
+static bool MouseButtonDown() {
+    return (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0 ||
+           (GetAsyncKeyState(VK_RBUTTON) & 0x8000) != 0;
+}
+
+// True when a visible window above the taskbar overlaps it. Windows that belong to
+// explorer.exe do not count, except File Explorer folder windows.
+static bool IsCovered(HWND taskbar, DWORD taskbarPid, const RECT& taskbarRect) {
     for (HWND w = GetWindow(taskbar, GW_HWNDPREV); w; w = GetWindow(w, GW_HWNDPREV)) {
         if (!IsWindowVisible(w)) continue;
+        if (IsShellPopup(w, taskbarPid)) continue;
         RECT r{};
         if (!GetWindowRect(w, &r)) continue;
         RECT inter{};
@@ -165,7 +214,10 @@ static bool IsCovered(HWND taskbar, const RECT& taskbarRect) {
 static void CheckTaskbar(HWND taskbar, ULONGLONG now) {
     RECT r{};
     if (!IsRevealed(taskbar, &r)) return;
-    if (!IsCovered(taskbar, r)) return;
+    DWORD taskbarPid = 0;
+    DWORD taskbarTid = GetWindowThreadProcessId(taskbar, &taskbarPid);
+    if (!IsCovered(taskbar, taskbarPid, r)) return;
+    if (MenuActive(taskbarTid)) return;
 
     auto it = g_tracked.find(taskbar);
     if (it == g_tracked.end()) {
@@ -201,6 +253,7 @@ static DWORD WINAPI WorkerThread(LPVOID) {
             lastAutoHideCheck = now;
         }
         if (!autoHide) continue;
+        if (MouseButtonDown()) continue;
 
         HWND primary = FindWindowW(L"Shell_TrayWnd", nullptr);
         if (primary) CheckTaskbar(primary, now);
