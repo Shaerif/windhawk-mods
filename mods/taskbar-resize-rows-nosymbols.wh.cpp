@@ -29,7 +29,7 @@ published PDB files for a new taskbar build.
   grip draws nothing. The mouse cursor turns into a resize arrow over it.
 - With "Wrap taskbar buttons into rows" on, the taskbar buttons flow into the
   rows and the notification area icons wrap into the same number of rows. The
-  clock, Wi-Fi, sound and battery stay as they are. It's experimental and off
+  clock, Wi-Fi, sound and battery don't change. It's experimental and off
   by default.
 
 ## Limits
@@ -345,7 +345,7 @@ bool RunFromWindowThread(HWND hWnd,
     return true;
 }
 
-// Asks explorer to recompute the taskbar size. This is the message the
+// Asks explorer to size the taskbar again. This is the message the
 // Taskbar height and icon size mod sends for the same purpose. Posted, so it
 // never runs inside a XAML layout pass.
 void RequestTaskbarRecalc(bool force = false) {
@@ -820,8 +820,8 @@ void ArrangeRows(TrackedElement& entry) {
     }
 
     // The button list is made exactly as wide as the rows can hold, so Windows
-    // itself shrinks or collapses the buttons that don't fit instead of a
-    // button landing past the screen edge. Buttons can change width with the
+    // itself shrinks or collapses the buttons that don't fit and no button
+    // lands past the screen edge. Buttons can change width with the
     // space they get, so the changes per second are capped to rule out a
     // layout loop.
     // Windows keeps the part of the list under the notification area free,
@@ -1902,7 +1902,7 @@ void UpdateGripWindowPosition(HWND hGripWnd) {
     // The taskbar is fully on screen. It must keep the same place for
     // kGripSettleMs before the grip shows or moves, so the end of a slide or
     // a height change never shows, hides or moves it on every frame. A grip
-    // that's already shown stays where it is meanwhile.
+    // that's already shown stays put meanwhile.
     ULONGLONG now = GetTickCount64();
     if (!EqualRect(&settleRect, &r)) {
         settleRect = r;
@@ -2269,7 +2269,7 @@ BOOL Wh_ModInit() {
 
     LoadSettings();
 
-    // Each hook is optional. If one can't be set, the part that needs it is
+    // Each hook is optional. If one can't be set, the part that needs it stays
     // off and the mod still loads.
 
     if (!WindhawkUtils::SetFunctionHook(CreateWindowExW, CreateWindowExW_Hook,

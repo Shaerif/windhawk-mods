@@ -48,7 +48,7 @@ The first mod in this repo came from a real problem. A Windows installer opened 
 Eight of the ten mods have a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
 
 ### Off-Screen Window Rescue
-Some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. When a normal window first appears and less than half of it is visible, with the default setting, this mod moves it to the center of the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
+Some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. When a normal window first appears and less than half of it can be seen, with the default setting, this mod moves it to the center of the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
 
 Settings: minVisiblePercent (default 50) and logMoves (default on). It skips File Explorer and core system processes.
 
@@ -211,7 +211,7 @@ Yes. They don't depend on each other.
 Add an @exclude line with the program file name in the mod's Source code tab.
 
 ### My window is still off screen. What now?
-Check that Off-Screen Window Rescue is enabled, then look at the Windhawk log. With logMoves on, each move is written there. The mod checks a window only when it first appears, so a window that was already off screen before you installed the mod stays where it is.
+Check that Off-Screen Window Rescue is enabled, then look at the Windhawk log. With logMoves on, each move is written there. The mod checks a window only when it first appears, so a window that was already off screen before you installed the mod stays put.
 
 ### My clipboard still hangs and the watchdog logs nothing.
 That points at the Clipboard User Service (cbdhsvc) or a holder the mod can't see. This mod doesn't cover either case.

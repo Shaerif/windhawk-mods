@@ -21,7 +21,7 @@ back right after you click a taskbar button. Then the taskbar shows up behind th
 window you just opened, and you can't see it or use it until you click somewhere
 else.
 
-This mod fixes both. The taskbar stays above every other window, including other
+This mod fixes both. The taskbar stays above every other window, even other
 topmost windows. When the taskbar hides again, the mod leaves it alone. Menus and
 flyouts are the one thing the taskbar never covers. See "Popups and menus" below.
 
@@ -39,12 +39,12 @@ app gets through, so a video or a game still covers the taskbar. The mod also
 catches the calls that raise the taskbar while a menu or a flyout is open, and
 leaves the stack alone, so the taskbar can't jump over the menu.
 
-Second, a small background thread wakes up every few milliseconds and checks the
-taskbar. If the taskbar lost its topmost state anyway, the thread gives it back on
-the next check. If the taskbar is on screen and a visible topmost window sits above
-it, the thread sets the taskbar topmost again. Among windows that stay on top, the
-one that was set last is drawn in front, so that puts the taskbar in front of the
-others. It doesn't take focus, and it doesn't move or resize anything.
+Second, a small background thread wakes up every 50 milliseconds by default and
+checks the taskbar. If the taskbar lost its topmost state anyway, the thread gives
+it back on the next check. If the taskbar is on screen and a visible topmost window
+sits above it, the thread sets the taskbar topmost again. Among windows that stay
+on top, the one that was set last is drawn in front, so that puts the taskbar in
+front of the others. It doesn't take focus, and it doesn't move or resize anything.
 
 ## What counts as a fullscreen app
 The test is strict on purpose. When the mod isn't sure, the taskbar stays on top.
@@ -88,7 +88,7 @@ invisible edge grip of a taskbar resize mod, and a window that spans at least 90
 percent of the monitor in both directions. The mod also waits while a menu is
 open on the taskbar thread or while a mouse button is held down.
 
-The mod does nothing when Windows shows no auto-hide. When the mod unloads, it
+The mod does nothing while auto-hide is off. When the mod unloads, it
 stops the thread and its hooks. The taskbar then stays on top, which is the Windows
 default, unless a real fullscreen app is in front.
 
@@ -111,7 +111,7 @@ The mod works only in File Explorer, where the taskbar lives.
 ## Limits
 - The mod was tested on one PC: Windows 11 build 26300, one monitor, auto-hide
   on. Secondary monitors and taskbars that aren't at the bottom weren't tested.
-  No other PC was checked. Expect to adjust it.
+  No other PC was checked.
 - A game that runs maximized or keeps a title bar counts as a normal window, so
   the taskbar stays on top of it. With auto-hide on you only see a thin line at
   the edge until you move the mouse there.
@@ -645,7 +645,7 @@ static bool IsRaise(HWND hWnd, HWND insertAfter, UINT flags) {
 }
 
 // Logs a call that would send the taskbar down. Returns true when the mod should
-// keep the taskbar where it is, which is always unless a real fullscreen app is in
+// keep the taskbar in place, which is always unless a real fullscreen app is in
 // front.
 static bool KeepOnTop(HWND hWnd, HWND insertAfter, PCWSTR api, void* caller) {
     FrontWindow f;
