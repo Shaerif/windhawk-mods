@@ -1,11 +1,11 @@
 # Windhawk mods for Windows 11: window management, focus, and clipboard fixes
 
-A set of nine custom [Windhawk](https://windhawk.net) mods for Windows 11. Eight of them fix a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, Copy as path when you only want the names of one or many files and folders, and an auto-hidden taskbar that slides in behind a window. The ninth logs which Windows API call Windows Update uses when it restarts your PC. They're written in C++, they're MIT licensed, and you can install any of them on its own.
+A set of ten custom [Windhawk](https://windhawk.net) mods for Windows 11. Nine of them fix a single everyday annoyance: windows that open off screen, no way to cycle through an app's windows, focus that needs a click, tall title bars you can't fold away, apps that forget where you put them, a clipboard that freezes, Copy as path when you only want the names of one or many files and folders, an auto-hidden taskbar that slides in behind a window, and a taskbar you can't make taller. The tenth logs which Windows API call Windows Update uses when it restarts your PC. They're written in C++, nine are MIT licensed and the taskbar resize mod is GPL-3.0, and you can install any of them on its own.
 
 We build these because Windows 11 leaves small gaps that Mac and Linux desktops filled years ago. We'd rather patch a gap once, in a mod we can read and change, than live with it or install a large tweaking suite for one feature.
 
 ## Documentation
-Eight of the nine mods have their own step-by-step tutorial in the docs folder. The [docs index](docs/README.md) lists them. Taskbar Always On Top has no tutorial yet.
+Eight of the ten mods have their own step-by-step tutorial in the docs folder. The [docs index](docs/README.md) lists them. Taskbar Always On Top and Taskbar Resize and Rows Without Symbols have no tutorial yet.
 
 ## Contents
 - [Quick summary](#quick-summary)
@@ -32,6 +32,7 @@ Eight of the nine mods have their own step-by-step tutorial in the docs folder. 
 | Bulk Copy File and Folder Names | Copy as path gives full paths when you only want the names of one or many files and folders | explorer.exe | `mods/bulk-copy-file-and-folder-names.wh.cpp` |
 | Restart API Logger | Windows Update restarts your PC and you can't tell which API call it used | MoUsoCoreWorker.exe and TrustedInstaller.exe | `mods/restart-api-logger.wh.cpp` |
 | Taskbar Always On Top | An auto-hidden taskbar slides in behind a window that covers the screen edge | explorer.exe | `mods/taskbar-always-on-top.wh.cpp` |
+| Taskbar Resize and Rows Without Symbols | The taskbar has one fixed height and no way to drag it taller | explorer.exe | `mods/taskbar-resize-rows-nosymbols.wh.cpp` |
 
 ## Why we build these mods
 Windhawk lets you change how Windows behaves by injecting small pieces of code into running programs. It doesn't patch system files on disk. That makes it a good fit for narrow fixes, because a mod is one readable file and you can turn it off at any time.
@@ -44,7 +45,7 @@ We follow three rules when we write a mod:
 The first mod in this repo came from a real problem. A Windows installer opened its window outside the visible area and wouldn't come back. That's why the rescue mod exists, and why it checks each window once instead of fighting you every time you drag one near an edge.
 
 ## The mods
-Eight of the nine mods have a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
+Eight of the ten mods have a step-by-step tutorial in the docs folder, with a screenshot for each step where one was captured. The sections below are short on purpose. The tutorial has the settings, the limits and what's been tested.
 
 ### Off-Screen Window Rescue
 Some windows open at coordinates that don't exist on your screen. Installers, old apps, and apps that remember a monitor you've unplugged do this. When a normal window first appears and less than half of it is visible, with the default setting, this mod moves it to the center of the work area. It checks each window once, so you can still drag a window partly off the edge afterward.
@@ -113,6 +114,15 @@ Limits: it works in explorer.exe only, on x86-64, and only when auto-hide is on.
 
 Tested on Windows 11 build 26300 on our PC and build 29683 in a VM. Each had one monitor, auto-hide on and the taskbar at the bottom. In the topmost test the taskbar sat above the test window in 30 of 30 samples with the mod on and in 0 of 30 with it off. We haven't tested other setups.
 
+### Taskbar Resize and Rows Without Symbols
+Windows 11 gives the taskbar one height and no handle to change it. This mod puts an invisible grip on the top edge of the taskbar. Drag it and the taskbar grows or shrinks in whole rows, and the mod remembers the row count. It reaches the taskbar's XAML tree through XAML diagnostics, the public interface the Windows 11 Taskbar Styler mod uses, so it needs no PDB symbols and keeps working on a new build before Microsoft publishes them. With the experimental Wrap taskbar buttons into rows setting on, the buttons flow into the rows and the notification area icons wrap with them.
+
+Settings: RowHeight (default 48), Rows (default 1), MinRows (default 1), MaxRows (default 4), IconSize (default 0, which keeps the Windows size), MultirowLayout (default off), EdgeResizeEnabled (default on), EdgeResizeGripPixels (default 8) and DebugLog (default off).
+
+Limits: it works in explorer.exe only, on x86-64. Only a horizontal taskbar on the primary monitor is resized. Only one program can use XAML diagnostics in explorer at a time, so it can clash with Windows 11 Taskbar Styler, TranslucentTB or ExplorerBlurMica.
+
+It adapts GPL-3.0 code from Windows 11 Taskbar Styler, so this one mod is GPL-3.0. See [Credits](#credits). It was built and run on our PC on Windows 11 build 26300 during development. There's no recorded test with screenshots yet.
+
 ## Install
 You need [Windhawk](https://windhawk.net) installed first. Then pick one way.
 
@@ -177,6 +187,9 @@ Install Bulk Copy File and Folder Names, select the files and folders, and press
 ### How do I keep an auto-hidden taskbar in front of a topmost window?
 Install Taskbar Always On Top and turn on auto-hide for the taskbar. When you reveal the taskbar, the mod moves it above the windows that cover it, topmost windows included. It only works in explorer.exe, and a window in a higher z-order band can still stay in front.
 
+### How do I make the Windows 11 taskbar taller or give it more rows?
+Install Taskbar Resize and Rows Without Symbols and drag the top edge of the taskbar. It grows or shrinks one row at a time, and the mod remembers the row count. Turn on Wrap taskbar buttons into rows if you want the buttons and the tray icons to use the extra rows. That part is experimental and off by default.
+
 ### Is it safe to run these mods?
 Each mod is one source file you can read before you install it. Windhawk compiles it on your machine. The clipboard watchdog starts in log-only mode and never ends a program on the protected list.
 
@@ -222,7 +235,7 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 ```
 
 - Build time: Windhawk compiles a mod in about 45 to 60 seconds on our machine.
-- License: MIT. You can copy, change, and redistribute any mod.
+- License: MIT for nine mods. Taskbar Resize and Rows Without Symbols is GPL-3.0, because it adapts GPL-3.0 code. You can copy, change, and redistribute any mod under its license.
 
 | Mod ID | Version | Scope | Settings keys |
 | --- | --- | --- | --- |
@@ -235,10 +248,11 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 | bulk-copy-file-and-folder-names | 0.3.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 | restart-api-logger | 0.1.0 | MoUsoCoreWorker.exe, TrustedInstaller.exe | logLevel, fileLog |
 | taskbar-always-on-top | 0.1.4 | explorer.exe | includeSecondary, intervalMs, debugLog |
+| taskbar-resize-rows-nosymbols | 0.1.7 | explorer.exe | RowHeight, Rows, MinRows, MaxRows, IconSize, MultirowLayout, EdgeResizeEnabled, EdgeResizeGripPixels, DebugLog |
 
 
 ## Status
-Tested on Windows 11 build 26300 with a single monitor. Eight of the nine mods have a recorded live test. The restart API logger doesn't. Taskbar Always On Top was also tested on build 29683 in a VM. The guides in the docs folder have the screenshots.
+Tested on Windows 11 build 26300 with a single monitor. Eight of the ten mods have a recorded live test. The restart API logger and the taskbar resize mod don't. Taskbar Always On Top was also tested on build 29683 in a VM. The guides in the docs folder have the screenshots.
 
 - Title Bar Scroll Roll-Up: checked on a plain test window. Scroll up rolled it up and scroll down brought it back.
 - Off-Screen Window Rescue: a window opened at x=-3000 stayed there with the mod off and moved to the center with the mod on. It hasn't been tested on a real MSI installer yet.
@@ -249,13 +263,28 @@ Tested on Windows 11 build 26300 with a single monitor. Eight of the nine mods h
 - Focus Follows Mouse: one recorded live run with the default settings. A hover with no click gave focus to a window behind another one, and that window stayed behind. raiseWindow on and real apps haven't been tested.
 - Restart API Logger: no recorded live test of a restart. Its log file on our test PC shows that Windhawk loaded it into MoUsoCoreWorker.exe and TrustedInstaller.exe with all nine APIs hooked, but it hasn't logged a restart call yet.
 - Taskbar Always On Top: tested on build 26300 and on build 29683 in a VM, each with one monitor, auto-hide on and the taskbar at the bottom. With a topmost test window, the taskbar sat above it in 30 of 30 samples with the mod on and in 0 of 30 with it off. Secondary monitors and other taskbar positions haven't been tested.
+- Taskbar Resize and Rows Without Symbols: no recorded test with screenshots. Its debug log on our PC shows version 0.1.7 loaded into explorer.exe on build 26300 with two rows.
 
 ## Credits
-All nine mods are original work. They use no code from other projects, only
-public Windows APIs, and each one is MIT licensed.
+Nine of the ten mods are original work. They use no code from other projects,
+only public Windows APIs, and each one is MIT licensed.
+
+Taskbar Resize and Rows Without Symbols is the exception, and its own readme
+carries the full credits. In short:
+- andkon's Draggable, All-in-One Multirow Taskbar & Systray for Windows 11,
+  under GPL-3.0, is the behavior reference. No code was taken from it. Links:
+  https://github.com/andkondev and https://andkon.dev/
+- m417z's Windows 11 Taskbar Styler, under GPL-3.0, is where the XAML
+  diagnostics code is adapted from. Links: https://github.com/m417z and
+  https://m417z.com/
+- The Styler's XAML diagnostics code is based on ExplorerTAP from the
+  TranslucentTB project, under GPL-3.0. Link:
+  https://github.com/TranslucentTB/TranslucentTB/tree/develop/ExplorerTAP
+
+Because of that adapted code, the resize mod is GPL-3.0.
 
 ## Disclaimer
 These mods come with no warranty of any kind, and you use them at your own risk. The author isn't liable for any damage, data loss, crash, or other harm they cause. A mod runs inside Windows apps, so test it on your own machine before you rely on it.
 
 ## License
-MIT. The full text is in the [LICENSE](LICENSE) file. After the MIT terms, the file adds a Use at your own risk notice that says the mods come with no warranty or guarantee of any kind.
+MIT for nine of the ten mods. The full text is in the [LICENSE](LICENSE) file. After the MIT terms, the file adds a Use at your own risk notice that says the mods come with no warranty or guarantee of any kind. Taskbar Resize and Rows Without Symbols is GPL-3.0, since it adapts GPL-3.0 code from Windows 11 Taskbar Styler. Its header says so.
