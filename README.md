@@ -104,9 +104,9 @@ Settings: logLevel (default detailed) and fileLog (default on), which also write
 Full guide: [Restart API Logger tutorial](docs/restart-api-logger.md).
 
 ### Taskbar Always On Top
-With an auto-hidden taskbar, a window at the screen edge can still cover it. A topmost window does this. You reveal the taskbar and it slides in behind that window, where you can't click it. This mod moves the taskbar above the windows that cover it, topmost windows included. It checks every 50 ms and does nothing while the taskbar is hidden. It never moves or resizes the taskbar.
+With an auto-hidden taskbar, a window at the screen edge can still cover it. A topmost window does this. You reveal the taskbar and it slides in behind that window, where you can't click it. This mod moves the taskbar above the windows that cover it, topmost windows included. Explorer can also send the taskbar to the back right after you click a taskbar button. Since 0.1.2 the mod stops that, and since 0.1.3 only a real fullscreen app gets through: Windows must report one, and the window must fill the monitor exactly with no title bar and no overlay styles. Since 0.1.4 the taskbar never covers a menu or a flyout: while a popup from any program overlaps the taskbar, the mod doesn't raise it, holds back explorer's own raise calls, and moves the taskbar under a topmost popup it already covers. It checks every 50 ms. It never moves or resizes the taskbar.
 
-Settings: includeSecondary (default on) and intervalMs (default 50, range 10 to 1000).
+Settings: includeSecondary (default on), intervalMs (default 50, range 10 to 1000) and debugLog (default off).
 
 Limits: it works in explorer.exe only, on x86-64, and only when auto-hide is on. A window in a higher z-order band stays in front, and the mod can't change that.
 
@@ -233,7 +233,8 @@ windhawk-cli.exe mod settings set <id> "'key=value'"
 | clipboard-hang-watchdog | 0.1.0 | explorer.exe | thresholdSeconds, action, killAfterSeconds, maxLogKB, protectedProcesses |
 | bulk-copy-file-and-folder-names | 0.3.0 | explorer.exe | withExtModifier, withExtKey, noExtModifier, noExtKey, separator, quoteNames, contextMenu |
 | restart-api-logger | 0.1.0 | MoUsoCoreWorker.exe, TrustedInstaller.exe | logLevel, fileLog |
-| taskbar-always-on-top | 0.1.1 | explorer.exe | includeSecondary, intervalMs |
+| taskbar-always-on-top | 0.1.4 | explorer.exe | includeSecondary, intervalMs, debugLog |
+
 
 ## Status
 Tested on Windows 11 build 26300 with a single monitor. Eight of the nine mods have a recorded live test. The restart API logger doesn't. Taskbar Always On Top was also tested on build 29683 in a VM. The guides in the docs folder have the screenshots.
