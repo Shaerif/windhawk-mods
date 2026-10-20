@@ -152,6 +152,11 @@ the screen edge where the taskbar hides.
   the hidden taskbar as shown. The effect is harmless. It just sets the taskbar
   topmost a little more often.
 
+## Credits
+This mod is original work. It uses no code from other mods, only public Windows
+APIs such as SetWindowPos and SHQueryUserNotificationState. It's MIT licensed
+like the rest of this repo, and the LICENSE file in the repo has the text.
+
 ## Version history
 - 0.1.4: Stopped the taskbar from covering menus and flyouts when auto-hide is
   on. The mod raised the taskbar over the menu of a tray icon, since that menu

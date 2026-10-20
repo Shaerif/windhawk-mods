@@ -16,6 +16,7 @@ Eight of the nine mods have their own step-by-step tutorial in the docs folder. 
 - [Questions and answers](#questions-and-answers)
 - [Mod reference](#mod-reference)
 - [Status](#status)
+- [Credits](#credits)
 - [Disclaimer](#disclaimer)
 - [License](#license)
 
@@ -248,6 +249,10 @@ Tested on Windows 11 build 26300 with a single monitor. Eight of the nine mods h
 - Focus Follows Mouse: one recorded live run with the default settings. A hover with no click gave focus to a window behind another one, and that window stayed behind. raiseWindow on and real apps haven't been tested.
 - Restart API Logger: no recorded live test of a restart. Its log file on our test PC shows that Windhawk loaded it into MoUsoCoreWorker.exe and TrustedInstaller.exe with all nine APIs hooked, but it hasn't logged a restart call yet.
 - Taskbar Always On Top: tested on build 26300 and on build 29683 in a VM, each with one monitor, auto-hide on and the taskbar at the bottom. With a topmost test window, the taskbar sat above it in 30 of 30 samples with the mod on and in 0 of 30 with it off. Secondary monitors and other taskbar positions haven't been tested.
+
+## Credits
+All nine mods are original work. They use no code from other projects, only
+public Windows APIs, and each one is MIT licensed.
 
 ## Disclaimer
 These mods come with no warranty of any kind, and you use them at your own risk. The author isn't liable for any damage, data loss, crash, or other harm they cause. A mod runs inside Windows apps, so test it on your own machine before you rely on it.
